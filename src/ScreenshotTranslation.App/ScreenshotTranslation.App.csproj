@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\ScreenshotTranslation.Core\ScreenshotTranslation.Core.csproj" />
+    <ProjectReference Include="..\ScreenshotTranslation.Infrastructure\ScreenshotTranslation.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyName>ScreenshotTranslation</AssemblyName>
+    <RootNamespace>ScreenshotTranslation.App</RootNamespace>
+  </PropertyGroup>
+
+</Project>

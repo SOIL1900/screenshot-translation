@@ -1,0 +1,64 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4867BE89-7903-46E1-AF37-FAE7B087C96C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreenshotTranslation.Core", "src\ScreenshotTranslation.Core\ScreenshotTranslation.Core.csproj", "{B1365329-9CFE-478B-BBBC-A409688A489D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreenshotTranslation.Infrastructure", "src\ScreenshotTranslation.Infrastructure\ScreenshotTranslation.Infrastructure.csproj", "{934FAD36-5D26-4182-9460-A3A044020C12}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreenshotTranslation.App", "src\ScreenshotTranslation.App\ScreenshotTranslation.App.csproj", "{C281C399-8395-42ED-8BD4-671EC4A8AB71}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{4A2574BD-469B-4D46-B9EA-D39686F83CB1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreenshotTranslation.Core.Tests", "tests\ScreenshotTranslation.Core.Tests\ScreenshotTranslation.Core.Tests.csproj", "{9C17B033-668B-4F30-B9B6-6852F1A9A3C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreenshotTranslation.Infrastructure.Tests", "tests\ScreenshotTranslation.Infrastructure.Tests\ScreenshotTranslation.Infrastructure.Tests.csproj", "{CB8DA271-CA4F-4B4D-8690-0843FE313367}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreenshotTranslation.App.Tests", "tests\ScreenshotTranslation.App.Tests\ScreenshotTranslation.App.Tests.csproj", "{3BA6447A-7792-4BCC-9D37-C96B32B6AAD3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B1365329-9CFE-478B-BBBC-A409688A489D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1365329-9CFE-478B-BBBC-A409688A489D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1365329-9CFE-478B-BBBC-A409688A489D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1365329-9CFE-478B-BBBC-A409688A489D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{934FAD36-5D26-4182-9460-A3A044020C12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{934FAD36-5D26-4182-9460-A3A044020C12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{934FAD36-5D26-4182-9460-A3A044020C12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{934FAD36-5D26-4182-9460-A3A044020C12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C281C399-8395-42ED-8BD4-671EC4A8AB71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C281C399-8395-42ED-8BD4-671EC4A8AB71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C281C399-8395-42ED-8BD4-671EC4A8AB71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C281C399-8395-42ED-8BD4-671EC4A8AB71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C17B033-668B-4F30-B9B6-6852F1A9A3C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C17B033-668B-4F30-B9B6-6852F1A9A3C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C17B033-668B-4F30-B9B6-6852F1A9A3C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C17B033-668B-4F30-B9B6-6852F1A9A3C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB8DA271-CA4F-4B4D-8690-0843FE313367}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB8DA271-CA4F-4B4D-8690-0843FE313367}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB8DA271-CA4F-4B4D-8690-0843FE313367}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB8DA271-CA4F-4B4D-8690-0843FE313367}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BA6447A-7792-4BCC-9D37-C96B32B6AAD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BA6447A-7792-4BCC-9D37-C96B32B6AAD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BA6447A-7792-4BCC-9D37-C96B32B6AAD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BA6447A-7792-4BCC-9D37-C96B32B6AAD3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B1365329-9CFE-478B-BBBC-A409688A489D} = {4867BE89-7903-46E1-AF37-FAE7B087C96C}
+		{934FAD36-5D26-4182-9460-A3A044020C12} = {4867BE89-7903-46E1-AF37-FAE7B087C96C}
+		{C281C399-8395-42ED-8BD4-671EC4A8AB71} = {4867BE89-7903-46E1-AF37-FAE7B087C96C}
+		{9C17B033-668B-4F30-B9B6-6852F1A9A3C1} = {4A2574BD-469B-4D46-B9EA-D39686F83CB1}
+		{CB8DA271-CA4F-4B4D-8690-0843FE313367} = {4A2574BD-469B-4D46-B9EA-D39686F83CB1}
+		{3BA6447A-7792-4BCC-9D37-C96B32B6AAD3} = {4A2574BD-469B-4D46-B9EA-D39686F83CB1}
+	EndGlobalSection
+EndGlobal
