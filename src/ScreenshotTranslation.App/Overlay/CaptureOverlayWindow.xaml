@@ -1,0 +1,33 @@
+<Window x:Class="ScreenshotTranslation.App.Overlay.CaptureOverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:ScreenshotTranslation.App.Overlay"
+        Title="截图翻译"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        WindowStartupLocation="Manual"
+        ShowInTaskbar="False"
+        Topmost="True"
+        Background="Black"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        KeyDown="OnWindowKeyDown"
+        PreviewMouseRightButtonDown="OnWindowPreviewMouseRightButtonDown"
+        SourceInitialized="OnSourceInitialized"
+        Closed="OnWindowClosed"
+        AutomationProperties.Name="截图翻译选区覆盖层">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="OverlayColors.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <local:SelectionCanvas x:Name="SelectionSurface" />
+        <Canvas Background="{x:Null}">
+            <local:TranslationPanelView x:Name="ResultPanel"
+                                        Visibility="Collapsed" />
+        </Canvas>
+    </Grid>
+</Window>
