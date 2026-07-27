@@ -1,6 +1,9 @@
 using System.Windows;
 using ScreenshotTranslation.App.Services;
 using ScreenshotTranslation.Core.Configuration;
+using WpfComboBox = System.Windows.Controls.ComboBox;
+using WpfTextBlock = System.Windows.Controls.TextBlock;
+using WpfTextSearch = System.Windows.Controls.TextSearch;
 
 namespace ScreenshotTranslation.App.Tests.Services;
 
@@ -29,6 +32,25 @@ public sealed class ThemeServiceTests
                 mergedDictionaries,
                 dictionary => ThemeService.IsColorDictionarySource(dictionary.Source));
             Assert.EndsWith("Themes/Colors.Dark.xaml", darkDictionary.Source.OriginalString);
+            var pageTitleStyle = Assert.IsType<Style>(
+                application.FindResource("PageTitleTextStyle"));
+            var sectionHeaderStyle = Assert.IsType<Style>(
+                application.FindResource("SectionHeaderTextStyle"));
+            var comboBoxStyle = Assert.IsType<Style>(
+                application.FindResource(typeof(WpfComboBox)));
+            Assert.Contains(
+                pageTitleStyle.Setters.OfType<Setter>(),
+                setter => setter.Property == WpfTextBlock.ForegroundProperty);
+            Assert.Contains(
+                sectionHeaderStyle.Setters.OfType<Setter>(),
+                setter => setter.Property == WpfTextBlock.ForegroundProperty);
+            Assert.Contains(
+                comboBoxStyle.Setters.OfType<Setter>(),
+                setter => setter.Property == WpfComboBox.TemplateProperty);
+            Assert.Contains(
+                comboBoxStyle.Setters.OfType<Setter>(),
+                setter => setter.Property == WpfTextSearch.TextPathProperty &&
+                          Equals(setter.Value, "DisplayName"));
             Assert.Equal(
                 nonColorDictionaries,
                 mergedDictionaries.Where(dictionary => !ThemeService.IsColorDictionarySource(dictionary.Source)));

@@ -44,6 +44,12 @@ public partial class HotkeyRecorder : UserControl
     private void OnPreviewKeyDown(object sender, KeyEventArgs eventArgs)
     {
         var key = eventArgs.Key == Key.System ? eventArgs.SystemKey : eventArgs.Key;
+        var keyboardModifiers = Keyboard.Modifiers;
+        if (IsFocusNavigationInput(key, keyboardModifiers))
+        {
+            return;
+        }
+
         eventArgs.Handled = true;
         if (IsModifierKey(key))
         {
@@ -51,7 +57,7 @@ public partial class HotkeyRecorder : UserControl
             return;
         }
 
-        var modifiers = GetModifiers(Keyboard.Modifiers);
+        var modifiers = GetModifiers(keyboardModifiers);
         if (modifiers == HotkeyModifiers.None || key is Key.None or Key.ImeProcessed or Key.DeadCharProcessed)
         {
             DisplayTextBlock.Text = "快捷键需要修饰键和一个非修饰键";
@@ -103,6 +109,9 @@ public partial class HotkeyRecorder : UserControl
 
         return result;
     }
+
+    internal static bool IsFocusNavigationInput(Key key, ModifierKeys modifiers) =>
+        key == Key.Tab && modifiers is ModifierKeys.None or ModifierKeys.Shift;
 
     private static bool IsModifierKey(Key key) => key is
         Key.LeftCtrl or Key.RightCtrl or
