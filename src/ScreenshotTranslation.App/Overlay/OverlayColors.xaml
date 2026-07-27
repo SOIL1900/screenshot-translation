@@ -7,6 +7,7 @@
     <Color x:Key="Overlay.Color.TextSecondary">#CBD5E1</Color>
     <Color x:Key="Overlay.Color.Accent">#7C3AED</Color>
     <Color x:Key="Overlay.Color.AccentHover">#6D28D9</Color>
+    <Color x:Key="Overlay.Color.PrimaryTint">#2E1065</Color>
     <Color x:Key="Overlay.Color.Border">#4C1D95</Color>
     <Color x:Key="Overlay.Color.ErrorText">#FCA5A5</Color>
     <Color x:Key="Overlay.Color.SuccessText">#86EFAC</Color>
@@ -22,6 +23,7 @@
     <SolidColorBrush x:Key="Overlay.Brush.TextSecondary" Color="{StaticResource Overlay.Color.TextSecondary}" />
     <SolidColorBrush x:Key="Overlay.Brush.Accent" Color="{StaticResource Overlay.Color.Accent}" />
     <SolidColorBrush x:Key="Overlay.Brush.AccentHover" Color="{StaticResource Overlay.Color.AccentHover}" />
+    <SolidColorBrush x:Key="Overlay.Brush.PrimaryTint" Color="{StaticResource Overlay.Color.PrimaryTint}" />
     <SolidColorBrush x:Key="Overlay.Brush.Border" Color="{StaticResource Overlay.Color.Border}" />
     <SolidColorBrush x:Key="Overlay.Brush.ErrorText" Color="{StaticResource Overlay.Color.ErrorText}" />
     <SolidColorBrush x:Key="Overlay.Brush.SuccessText" Color="{StaticResource Overlay.Color.SuccessText}" />
@@ -42,4 +44,5 @@
     <StaticResource x:Key="Brush.OnPrimary" ResourceKey="Overlay.Brush.OnAccent" />
     <StaticResource x:Key="Brush.ErrorText" ResourceKey="Overlay.Brush.ErrorText" />
     <StaticResource x:Key="Brush.SuccessText" ResourceKey="Overlay.Brush.SuccessText" />
+    <SolidColorBrush x:Key="Brush.PrimaryTint" Color="{StaticResource Overlay.Color.PrimaryTint}" />
 </ResourceDictionary>
