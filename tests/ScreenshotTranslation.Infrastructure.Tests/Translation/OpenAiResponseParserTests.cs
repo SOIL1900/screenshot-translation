@@ -55,10 +55,14 @@ public sealed class OpenAiResponseParserTests
     [InlineData("The translation is:\n你好")]
     [InlineData("Sorry, I cannot translate this image")]
     [InlineData("I'm sorry, but I can't translate this screenshot.")]
+    [InlineData("Unfortunately, I cannot translate this screenshot.")]
+    [InlineData("Regrettably, I am unable to translate the image.")]
     [InlineData("以下是翻译：\nHello")]
     [InlineData("翻译如下：\nHello")]
     [InlineData("抱歉，我无法翻译这张图片")]
     [InlineData("对不起，我不能翻译这个截图")]
+    [InlineData("不好意思，我无法翻译这张图片")]
+    [InlineData("很抱歉，不能处理这个截图翻译请求")]
     public void Parser_rejects_invalid_or_incomplete_screenshot_content(string content)
     {
         var exception = Assert.Throws<TranslationClientException>(

@@ -137,14 +137,14 @@ public sealed class OpenAiTranslationClientTests
     }
 
     [Fact]
-    public async Task Explanatory_screenshot_content_is_invalid_and_reasoning_is_not_surfaced()
+    public async Task Qualified_refusal_content_is_invalid_and_reasoning_is_not_surfaced()
     {
         using var httpClient = ClientReturning("""
             {
               "choices": [{
                 "message": {
                   "reasoning_content": "secret reasoning",
-                  "content": "Here is the translation:\n你好"
+                  "content": "Unfortunately, I cannot translate this screenshot."
                 }
               }]
             }

@@ -30,30 +30,15 @@ public static class OpenAiResponseParser
         "翻译结果"
     ];
 
-    private static readonly string[] EnglishRefusalPrefixes =
-    [
-        "sorry",
-        "i'm sorry",
-        "i’m sorry",
-        "i am sorry",
-        "i cannot",
-        "i can't",
-        "i can’t",
-        "i am unable",
-        "i'm unable",
-        "i’m unable",
-        "unable to"
-    ];
-
     private static readonly string[] EnglishInabilityTerms =
     [
         "cannot",
         "can't",
-        "can’t",
         "unable",
         "not able",
         "won't",
-        "will not"
+        "will not",
+        "refuse"
     ];
 
     private static readonly string[] EnglishResponseTopics =
@@ -66,19 +51,7 @@ public static class OpenAiResponseParser
         "help"
     ];
 
-    private static readonly string[] ChineseRefusalPrefixes =
-    [
-        "抱歉",
-        "很抱歉",
-        "对不起",
-        "我无法",
-        "我不能",
-        "我没法",
-        "无法",
-        "不能"
-    ];
-
-    private static readonly string[] ChineseInabilityTerms = ["无法", "不能", "没法", "不支持"];
+    private static readonly string[] ChineseInabilityTerms = ["无法", "不能", "没法", "不支持", "拒绝"];
     private static readonly string[] ChineseResponseTopics = ["翻译", "图片", "图像", "截图", "请求", "帮助"];
     private static readonly string[] EnglishMetaPrefixes = ["as an ai", "as a language model"];
     private static readonly string[] ChineseMetaPrefixes = ["作为AI", "作为 AI", "作为一个AI", "作为一个 AI"];
@@ -263,22 +236,20 @@ public static class OpenAiResponseParser
     private static bool LooksLikeExplanatoryOrRefusalText(string content)
     {
         string trimmed = content.TrimStart();
-        string lower = trimmed.ToLowerInvariant();
+        string normalized = trimmed.ToLowerInvariant().Replace('’', '\'');
 
-        if (StartsWithAny(lower, EnglishExplanationPrefixes) ||
+        if (StartsWithAny(normalized, EnglishExplanationPrefixes) ||
             StartsWithAny(trimmed, ChineseExplanationPrefixes) ||
-            StartsWithAny(lower, EnglishMetaPrefixes) ||
+            StartsWithAny(normalized, EnglishMetaPrefixes) ||
             StartsWithAny(trimmed, ChineseMetaPrefixes))
         {
             return true;
         }
 
         bool isEnglishRefusal =
-            StartsWithAny(lower, EnglishRefusalPrefixes) &&
-            ContainsAny(lower, EnglishInabilityTerms) &&
-            ContainsAny(lower, EnglishResponseTopics);
+            ContainsAny(normalized, EnglishInabilityTerms) &&
+            ContainsAny(normalized, EnglishResponseTopics);
         bool isChineseRefusal =
-            StartsWithAny(trimmed, ChineseRefusalPrefixes) &&
             ContainsAny(trimmed, ChineseInabilityTerms) &&
             ContainsAny(trimmed, ChineseResponseTopics);
 
