@@ -18,7 +18,7 @@ namespace ScreenshotTranslation.App.Composition;
 
 public sealed class AppServices : IDisposable
 {
-    private const string DataDirectoryName = "ScreenshotTranslation";
+    private const string DataDirectoryName = "ScreenshotTranslator";
     private const string OutputIconFileName = "AppIcon.ico";
 
     private bool _disposed;
@@ -153,8 +153,8 @@ public sealed class AppServices : IDisposable
         HttpClient.Dispose();
     }
 
-    private static string GetDefaultDataDirectory() => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+    internal static string GetDefaultDataDirectory() => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         DataDirectoryName);
 
     private static string GetOutputIconPath() =>

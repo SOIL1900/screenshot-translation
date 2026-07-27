@@ -6,11 +6,36 @@ using System.Windows;
 using ScreenshotTranslation.App.Composition;
 using ScreenshotTranslation.App.Services;
 using ScreenshotTranslation.Core.Configuration;
+using ScreenshotTranslation.Infrastructure.Configuration;
+using ScreenshotTranslation.Infrastructure.Diagnostics;
 
 namespace ScreenshotTranslation.App.Tests.Composition;
 
 public sealed class AppServicesTests
 {
+    [Fact]
+    public void Default_data_directory_is_shared_by_settings_and_diagnostics()
+    {
+        StaTestHost.Run(() =>
+        {
+            var expectedDirectory = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "ScreenshotTranslator");
+            var defaultDirectory = AppServices.GetDefaultDataDirectory();
+
+            using var services = new AppServices(new ResourceDictionary());
+
+            Assert.Equal(expectedDirectory, defaultDirectory);
+            Assert.Equal(
+                Path.Combine(expectedDirectory, "settings.json"),
+                Assert.IsType<JsonSettingsStore>(services.SettingsStore).SettingsPath);
+            Assert.Equal(
+                Path.Combine(expectedDirectory, "diagnostics.jsonl"),
+                Assert.IsType<FileDiagnosticLog>(services.DiagnosticLog).LogPath);
+            return Task.CompletedTask;
+        });
+    }
+
     [Fact]
     public void Composed_translation_uses_injected_local_handler_without_network()
     {
