@@ -18,8 +18,8 @@ public enum TranslationErrorCode
 
 public sealed record ScreenshotTranslationResult(
     TranslationResultStatus Status,
-    string SourceLanguage,
-    string SourceLanguageCode,
+    string? SourceLanguage,
+    string? SourceLanguageCode,
     string Translation);
 
 public sealed record ReplyTranslationResult(string TargetLanguageCode, string Translation);

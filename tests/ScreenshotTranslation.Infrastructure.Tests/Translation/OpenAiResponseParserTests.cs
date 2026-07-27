@@ -36,8 +36,8 @@ public sealed class OpenAiResponseParserTests
         var result = OpenAiResponseParser.ParseScreenshotContent(content);
 
         Assert.Equal(TranslationResultStatus.Ok, result.Status);
-        Assert.Equal("Unknown", result.SourceLanguage);
-        Assert.Equal("und", result.SourceLanguageCode);
+        Assert.Null(result.SourceLanguage);
+        Assert.Null(result.SourceLanguageCode);
         Assert.Equal(expected, result.Translation);
     }
 

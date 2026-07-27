@@ -77,8 +77,8 @@ public static class OpenAiResponseParser
 
         return new ScreenshotTranslationResult(
             TranslationResultStatus.Ok,
-            "Unknown",
-            "und",
+            null,
+            null,
             candidate.Trim());
     }
 

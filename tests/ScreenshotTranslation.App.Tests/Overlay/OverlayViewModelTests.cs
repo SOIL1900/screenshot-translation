@@ -2,6 +2,7 @@ using ScreenshotTranslation.App.Overlay;
 using ScreenshotTranslation.Core.Configuration;
 using ScreenshotTranslation.Core.Geometry;
 using ScreenshotTranslation.Core.Translation;
+using ScreenshotTranslation.Infrastructure.Translation;
 using ScreenshotTranslation.Infrastructure.Windows;
 
 namespace ScreenshotTranslation.App.Tests.Overlay;
@@ -245,6 +246,27 @@ public sealed class OverlayViewModelTests
         Assert.Null(fixture.ViewModel.ReplyTargetLanguage);
         Assert.False(fixture.ViewModel.CanTranslateReply);
         Assert.Contains("选择回复目标语言", fixture.ViewModel.ReplyStatusMessage);
+    }
+
+    [Fact]
+    public async Task Plain_text_fallback_requires_then_uses_a_manual_reply_target()
+    {
+        var fallback = OpenAiResponseParser.ParseScreenshotContent("fallback translation");
+        var fixture = OverlayViewModelFixture.Create(screenshotResult: fallback);
+
+        await fixture.SelectValidAreaAsync();
+        fixture.ViewModel.ReplyInput = "manual reply";
+
+        Assert.Null(fixture.ViewModel.DetectedSourceLanguage);
+        Assert.Null(fixture.ViewModel.DetectedSourceLanguageCode);
+        Assert.Null(fixture.ViewModel.ReplyTargetLanguage);
+        Assert.False(fixture.ViewModel.CanTranslateReply);
+
+        fixture.ViewModel.ReplyTargetLanguage = "ja";
+        await fixture.ViewModel.TranslateReplyAsync();
+
+        Assert.True(fixture.ViewModel.CanTranslateReply);
+        Assert.Equal("ja", fixture.TranslationCoordinator.ReplyCalls.Single().TargetLanguageCode);
     }
 
     [Fact]

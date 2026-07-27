@@ -506,7 +506,7 @@ public sealed class OverlayViewModel : INotifyPropertyChanged
             }
 
             ScreenshotTranslation = result.Translation;
-            DetectedSourceLanguage = result.SourceLanguage;
+            DetectedSourceLanguage = NullIfWhiteSpace(result.SourceLanguage);
             DetectedSourceLanguageCode = NullIfWhiteSpace(result.SourceLanguageCode);
             ReplyTargetLanguage = DetectedSourceLanguageCode;
             ReplyStatusMessage = ReplyTargetLanguage is null
@@ -617,7 +617,7 @@ public sealed class OverlayViewModel : INotifyPropertyChanged
     private static bool IsValidSelection(PixelRect? selection) =>
         selection is { Width: >= MinimumSelectionSize, Height: >= MinimumSelectionSize };
 
-    private static string? NullIfWhiteSpace(string value) =>
+    private static string? NullIfWhiteSpace(string? value) =>
         string.IsNullOrWhiteSpace(value) ? null : value;
 
     private static string GetTranslationErrorMessage(TranslationErrorCode code, string operation) => code switch
