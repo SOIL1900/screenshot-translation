@@ -1,3 +1,5 @@
+using System.Reflection;
+using System.Runtime.InteropServices;
 using ScreenshotTranslation.Core.Configuration;
 using ScreenshotTranslation.Infrastructure.Windows;
 
@@ -5,6 +7,25 @@ namespace ScreenshotTranslation.Infrastructure.Tests.Windows;
 
 public sealed class GlobalHotkeyServiceTests
 {
+    [Theory]
+    [InlineData("NativeRegisterHotKey", "RegisterHotKey")]
+    [InlineData("NativeUnregisterHotKey", "UnregisterHotKey")]
+    public void Win32_imports_target_the_actual_user32_exports(
+        string methodName,
+        string expectedEntryPoint)
+    {
+        var nativeMethodsType = typeof(GlobalHotkeyService).GetNestedType(
+            "Win32GlobalHotkeyNativeMethods",
+            BindingFlags.NonPublic);
+        var method = nativeMethodsType?.GetMethod(
+            methodName,
+            BindingFlags.NonPublic | BindingFlags.Static);
+        var import = method?.GetCustomAttribute<DllImportAttribute>();
+
+        Assert.NotNull(import);
+        Assert.Equal(expectedEntryPoint, import.EntryPoint);
+    }
+
     [Fact]
     public Task Failed_previous_unregister_rolls_back_candidate_and_keeps_previous_registration()
     {

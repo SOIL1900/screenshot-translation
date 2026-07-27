@@ -12,8 +12,17 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
     <AssemblyName>ScreenshotTranslation</AssemblyName>
     <RootNamespace>ScreenshotTranslation.App</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\AppIcon.ico" />
+    <Content Include="Assets\AppIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>AppIcon.ico</TargetPath>
+    </Content>
+  </ItemGroup>
 
 </Project>

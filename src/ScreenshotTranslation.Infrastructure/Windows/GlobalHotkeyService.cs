@@ -192,7 +192,7 @@ public sealed class GlobalHotkeyService : IDisposable
         public bool UnregisterHotKey(nint windowHandle, int identifier) =>
             NativeUnregisterHotKey(windowHandle, identifier);
 
-        [DllImport("user32.dll", SetLastError = true)]
+        [DllImport("user32.dll", EntryPoint = "RegisterHotKey", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool NativeRegisterHotKey(
             nint windowHandle,
@@ -200,7 +200,7 @@ public sealed class GlobalHotkeyService : IDisposable
             uint modifiers,
             uint virtualKey);
 
-        [DllImport("user32.dll", SetLastError = true)]
+        [DllImport("user32.dll", EntryPoint = "UnregisterHotKey", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool NativeUnregisterHotKey(nint windowHandle, int identifier);
     }
