@@ -43,7 +43,6 @@ public sealed class OverlayViewModel : INotifyPropertyChanged
     private readonly IOverlayDelay _delay;
 
     private PixelRect? _selection;
-    private PixelRect? _panelBounds;
     private OverlayPointerMode _pointerMode;
     private PixelPoint _pointerStart;
     private PixelRect _pointerStartSelection;
@@ -91,6 +90,13 @@ public sealed class OverlayViewModel : INotifyPropertyChanged
         if (screenBounds.Width <= 0 || screenBounds.Height <= 0)
         {
             throw new ArgumentOutOfRangeException(nameof(screenBounds), "Screen bounds must be positive.");
+        }
+
+        if (screenBounds.X != 0 || screenBounds.Y != 0)
+        {
+            throw new ArgumentException(
+                "Screen bounds must use the frame-local origin (0, 0).",
+                nameof(screenBounds));
         }
 
         _frozenPng = frozenPng.ToArray();
@@ -144,18 +150,11 @@ public sealed class OverlayViewModel : INotifyPropertyChanged
             }
 
             _currentCropPng = null;
-            UpdatePanelBounds();
             OnPropertyChanged(nameof(HasValidSelection));
         }
     }
 
     public bool HasValidSelection => IsValidSelection(Selection);
-
-    public PixelRect? PanelBounds
-    {
-        get => _panelBounds;
-        private set => SetProperty(ref _panelBounds, value);
-    }
 
     public OverlayPointerMode PointerMode
     {
@@ -476,13 +475,7 @@ public sealed class OverlayViewModel : INotifyPropertyChanged
         {
             if (requiresCrop)
             {
-                var selection = Selection!.Value;
-                var localCrop = new PixelRect(
-                    selection.X - ScreenBounds.X,
-                    selection.Y - ScreenBounds.Y,
-                    selection.Width,
-                    selection.Height);
-                _currentCropPng = _cropService.Crop(_frozenPng, localCrop);
+                _currentCropPng = _cropService.Crop(_frozenPng, Selection!.Value);
             }
 
             var translationTask = _translationCoordinator.TranslateScreenshotAsync(
@@ -619,27 +612,6 @@ public sealed class OverlayViewModel : INotifyPropertyChanged
         DetectedSourceLanguageCode = null;
         ReplyTargetLanguage = null;
         ReplyTranslation = null;
-    }
-
-    private void UpdatePanelBounds()
-    {
-        if (!IsValidSelection(Selection))
-        {
-            PanelBounds = null;
-            return;
-        }
-
-        var selection = Selection!.Value;
-        var panelWidth = Math.Min(
-            ScreenBounds.Width,
-            Math.Clamp(selection.Width, PanelMinimumWidth, PanelMaximumWidth));
-        var panelHeight = Math.Min(ScreenBounds.Height, PanelHeight);
-        PanelBounds = ResultPanelPlacement.Place(
-            selection,
-            panelWidth,
-            panelHeight,
-            ScreenBounds,
-            PanelGap);
     }
 
     private static bool IsValidSelection(PixelRect? selection) =>

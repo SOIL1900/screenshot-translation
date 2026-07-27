@@ -8,20 +8,16 @@ public sealed class OverlayCoordinateMapper
     private const double DefaultDpi = 96d;
     private readonly double _scaleX;
     private readonly double _scaleY;
-    private readonly PixelPoint _physicalOrigin;
 
-    public OverlayCoordinateMapper(uint dpiX, uint dpiY, PixelPoint physicalOrigin = default)
+    public OverlayCoordinateMapper(uint dpiX, uint dpiY)
     {
         ArgumentOutOfRangeException.ThrowIfZero(dpiX);
         ArgumentOutOfRangeException.ThrowIfZero(dpiY);
         _scaleX = dpiX / DefaultDpi;
         _scaleY = dpiY / DefaultDpi;
-        _physicalOrigin = physicalOrigin;
     }
 
-    public static OverlayCoordinateMapper FromWindow(
-        nint windowHandle,
-        PixelPoint physicalOrigin = default)
+    public static OverlayCoordinateMapper FromWindow(nint windowHandle)
     {
         if (windowHandle == nint.Zero)
         {
@@ -31,17 +27,16 @@ public sealed class OverlayCoordinateMapper
         var dpi = GetDpiForWindow(windowHandle);
         return new OverlayCoordinateMapper(
             dpi == 0 ? 96u : dpi,
-            dpi == 0 ? 96u : dpi,
-            physicalOrigin);
+            dpi == 0 ? 96u : dpi);
     }
 
     public PixelPoint ToPhysical(System.Windows.Point point) => new(
-        checked(_physicalOrigin.X + DipLengthToPhysicalX(point.X)),
-        checked(_physicalOrigin.Y + DipLengthToPhysicalY(point.Y)));
+        DipLengthToPhysicalX(point.X),
+        DipLengthToPhysicalY(point.Y));
 
     public System.Windows.Rect ToDip(PixelRect rectangle) => new(
-        (rectangle.X - _physicalOrigin.X) / _scaleX,
-        (rectangle.Y - _physicalOrigin.Y) / _scaleY,
+        rectangle.X / _scaleX,
+        rectangle.Y / _scaleY,
         rectangle.Width / _scaleX,
         rectangle.Height / _scaleY);
 

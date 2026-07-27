@@ -34,6 +34,18 @@ public partial class CaptureOverlayWindow : Window
         ArgumentNullException.ThrowIfNull(frame);
         ArgumentNullException.ThrowIfNull(viewModel);
         ArgumentNullException.ThrowIfNull(foregroundWindowService);
+        var localFrameBounds = new PixelRect(
+            0,
+            0,
+            frame.Monitor.PhysicalBounds.Width,
+            frame.Monitor.PhysicalBounds.Height);
+        if (viewModel.ScreenBounds != localFrameBounds)
+        {
+            throw new ArgumentException(
+                "The overlay view model must use monitor-local frame bounds.",
+                nameof(viewModel));
+        }
+
         InitializeComponent();
 
         _frame = frame;
@@ -56,9 +68,7 @@ public partial class CaptureOverlayWindow : Window
     {
         var windowHandle = new WindowInteropHelper(this).Handle;
         var bounds = _frame.Monitor.PhysicalBounds;
-        _coordinateMapper = OverlayCoordinateMapper.FromWindow(
-            windowHandle,
-            new PixelPoint(bounds.X, bounds.Y));
+        _coordinateMapper = OverlayCoordinateMapper.FromWindow(windowHandle);
         SelectionSurface.SetCoordinateMapper(_coordinateMapper);
 
         if (!SetWindowPos(

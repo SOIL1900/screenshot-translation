@@ -330,40 +330,47 @@ public sealed class OverlayViewModelTests
     }
 
     [Fact]
-    public void Coordinate_mapper_converts_dips_to_physical_pixels_using_window_dpi()
+    public void Coordinate_mapper_keeps_150_percent_dpi_mapping_monitor_local()
     {
         var mapper = new OverlayCoordinateMapper(144, 144);
 
         Assert.Equal(new PixelPoint(150, 75), mapper.ToPhysical(new System.Windows.Point(100, 50)));
         Assert.Equal(new System.Windows.Rect(100, 50, 200, 100),
             mapper.ToDip(new PixelRect(150, 75, 300, 150)));
-    }
-
-    [Fact]
-    public void Coordinate_mapper_preserves_non_primary_monitor_origin()
-    {
-        var mapper = new OverlayCoordinateMapper(144, 144, new PixelPoint(-1920, 100));
-
-        Assert.Equal(
-            new PixelPoint(-1770, 175),
-            mapper.ToPhysical(new System.Windows.Point(100, 50)));
-        Assert.Equal(
-            new System.Windows.Rect(100, 50, 200, 100),
-            mapper.ToDip(new PixelRect(-1770, 175, 300, 150)));
         Assert.Equal(300, mapper.DipLengthToPhysicalX(200));
         Assert.Equal(150, mapper.DipLengthToPhysicalY(100));
     }
 
     [Fact]
-    public async Task Offset_monitor_selection_is_cropped_in_frame_local_pixels()
+    public void View_model_rejects_global_desktop_screen_bounds()
     {
-        var fixture = OverlayViewModelFixture.Create(
-            screenBounds: new PixelRect(-1920, 100, 1920, 1080));
+        var exception = Assert.Throws<ArgumentException>(() =>
+            OverlayViewModelFixture.Create(
+                screenBounds: new PixelRect(-1920, 100, 1920, 1080)));
 
-        fixture.ViewModel.BeginSelection(new PixelPoint(-1800, 200));
-        fixture.ViewModel.UpdatePointer(new PixelPoint(-1500, 350));
+        Assert.Equal("screenBounds", exception.ParamName);
+    }
+
+    [Fact]
+    public async Task Secondary_monitor_global_origin_never_enters_selection_or_crop_coordinates()
+    {
+        var monitor = new MonitorBounds(
+            (nint)2,
+            new PixelRect(-1920, 100, 1920, 1080));
+        var frameBounds = new PixelRect(
+            0,
+            0,
+            monitor.PhysicalBounds.Width,
+            monitor.PhysicalBounds.Height);
+        var fixture = OverlayViewModelFixture.Create(
+            screenBounds: frameBounds);
+
+        fixture.ViewModel.BeginSelection(new PixelPoint(120, 100));
+        fixture.ViewModel.UpdatePointer(new PixelPoint(420, 250));
         await fixture.ViewModel.CompletePointerActionAsync();
 
+        Assert.Equal(frameBounds, fixture.ViewModel.ScreenBounds);
+        Assert.Equal(new PixelRect(120, 100, 300, 150), fixture.ViewModel.Selection);
         Assert.Equal(
             new PixelRect(120, 100, 300, 150),
             fixture.CropService.CropRectangles.Single());
