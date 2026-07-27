@@ -34,9 +34,9 @@
                             <ColumnDefinition Width="120" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="开源依赖" Style="{StaticResource SecondaryTextStyle}" />
+                        <TextBlock Grid.Column="0" Text="开源说明" Style="{StaticResource SecondaryTextStyle}" />
                         <TextBlock Grid.Column="1"
-                                   Text=".NET 8、WPF 及项目随附的开源组件。完整清单随发布版本提供。" />
+                                   Text="本项目采用 MIT License 开源。依赖信息可在源代码的项目文件中查阅。" />
                     </Grid>
                 </StackPanel>
             </Border>

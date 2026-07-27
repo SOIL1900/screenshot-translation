@@ -9,7 +9,10 @@ public sealed class FileDiagnosticLog : IDiagnosticLog
 
     private static readonly HashSet<string> AllowedEventNames = new(StringComparer.Ordinal)
     {
-        "translation_failed"
+        "translation_failed",
+        "hotkey_registration_failed",
+        "startup_failed",
+        "capture_workflow_failed"
     };
 
     private static readonly JsonSerializerOptions SerializerOptions = new()

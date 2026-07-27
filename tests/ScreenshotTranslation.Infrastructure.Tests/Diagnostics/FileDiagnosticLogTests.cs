@@ -47,6 +47,28 @@ public sealed class FileDiagnosticLogTests
         Assert.Contains("unrecognized_event", text);
     }
 
+    [Theory]
+    [InlineData("hotkey_registration_failed")]
+    [InlineData("startup_failed")]
+    [InlineData("capture_workflow_failed")]
+    public async Task App_failure_categories_keep_the_fixed_content_free_schema(string eventName)
+    {
+        using var directory = new TemporaryDirectory();
+        var log = new FileDiagnosticLog(directory.Path, TimeProvider.System);
+        var exception = new InvalidOperationException("sk-secret screenshot translation");
+
+        await log.WriteAsync(eventName, exception);
+
+        var text = await File.ReadAllTextAsync(log.LogPath);
+        using var document = JsonDocument.Parse(text);
+        Assert.Equal(eventName, document.RootElement.GetProperty("eventName").GetString());
+        Assert.Equal(
+            new[] { "timestamp", "eventName", "exceptionType", "hResult" },
+            document.RootElement.EnumerateObject().Select(property => property.Name));
+        Assert.DoesNotContain("sk-secret", text);
+        Assert.DoesNotContain("screenshot translation", text);
+    }
+
     [Fact]
     public async Task Diagnostic_log_appends_one_json_object_per_line()
     {
