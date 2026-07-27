@@ -376,7 +376,8 @@ public sealed class OverlayViewModelTests
     {
         var monitor = new MonitorBounds(
             (nint)2,
-            new PixelRect(-1920, 100, 1920, 1080));
+            new PixelRect(-1920, 100, 1920, 1080),
+            new PixelRect(-1920, 100, 1920, 1040));
         var frameBounds = new PixelRect(
             0,
             0,

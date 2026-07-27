@@ -183,7 +183,7 @@ public partial class CaptureOverlayWindow : Window
             selection,
             panelWidthPhysical,
             panelHeightPhysical,
-            _viewModel.ScreenBounds,
+            _frame.Monitor.FrameLocalWorkArea,
             OverlayViewModel.PanelGap);
         var panelBoundsDip = coordinateMapper.ToDip(panelBounds);
         Canvas.SetLeft(ResultPanel, panelBoundsDip.X);

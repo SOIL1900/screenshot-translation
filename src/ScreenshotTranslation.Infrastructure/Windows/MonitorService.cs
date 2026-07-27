@@ -32,9 +32,16 @@ public sealed class MonitorService : IMonitorService
 
         var width = checked(monitorInfo.Monitor.Right - monitorInfo.Monitor.Left);
         var height = checked(monitorInfo.Monitor.Bottom - monitorInfo.Monitor.Top);
+        var workAreaWidth = checked(monitorInfo.WorkArea.Right - monitorInfo.WorkArea.Left);
+        var workAreaHeight = checked(monitorInfo.WorkArea.Bottom - monitorInfo.WorkArea.Top);
         return new MonitorBounds(
             monitorHandle,
-            new PixelRect(monitorInfo.Monitor.Left, monitorInfo.Monitor.Top, width, height));
+            new PixelRect(monitorInfo.Monitor.Left, monitorInfo.Monitor.Top, width, height),
+            new PixelRect(
+                monitorInfo.WorkArea.Left,
+                monitorInfo.WorkArea.Top,
+                workAreaWidth,
+                workAreaHeight));
     }
 
     [DllImport("user32.dll", SetLastError = true)]
