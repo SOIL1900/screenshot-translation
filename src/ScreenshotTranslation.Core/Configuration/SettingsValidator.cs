@@ -1,4 +1,5 @@
 using System.Text.Json;
+using ScreenshotTranslation.Core.Translation;
 
 namespace ScreenshotTranslation.Core.Configuration;
 
@@ -26,36 +27,93 @@ public static class SettingsValidator
 
     public static IReadOnlyList<ValidationIssue> Validate(AppSettings settings)
     {
+        return Validate(settings, requireApiKey: true);
+    }
+
+    public static IReadOnlyList<ValidationIssue> ValidatePersisted(AppSettings settings)
+    {
+        return Validate(settings, requireApiKey: false);
+    }
+
+    private static IReadOnlyList<ValidationIssue> Validate(
+        AppSettings settings,
+        bool requireApiKey)
+    {
         ArgumentNullException.ThrowIfNull(settings);
 
         var issues = new List<ValidationIssue>();
 
-        ValidateGeneral(settings.General, issues);
-        ValidateModel(settings.Model, issues);
+        if (settings.General is null)
+        {
+            issues.Add(new ValidationIssue("General", "General settings are required."));
+        }
+        else
+        {
+            ValidateGeneral(settings.General, issues);
+        }
+
+        if (settings.Model is null)
+        {
+            issues.Add(new ValidationIssue("Model", "Model settings are required."));
+        }
+        else
+        {
+            ValidateModel(settings.Model, issues, requireApiKey);
+        }
 
         return issues;
     }
 
     private static void ValidateGeneral(GeneralSettings general, ICollection<ValidationIssue> issues)
     {
-        if (general.CaptureHotkey.Modifiers == HotkeyModifiers.None ||
-            (general.CaptureHotkey.Modifiers & ~KnownModifiers) != HotkeyModifiers.None)
+        if (general.CaptureHotkey is null)
         {
             issues.Add(new ValidationIssue(
-                "General.CaptureHotkey.Modifiers",
-                "The capture hotkey must use at least one supported modifier."));
+                "General.CaptureHotkey",
+                "The capture hotkey is required."));
+        }
+        else
+        {
+            if (general.CaptureHotkey.Modifiers == HotkeyModifiers.None ||
+                (general.CaptureHotkey.Modifiers & ~KnownModifiers) != HotkeyModifiers.None)
+            {
+                issues.Add(new ValidationIssue(
+                    "General.CaptureHotkey.Modifiers",
+                    "The capture hotkey must use at least one supported modifier."));
+            }
+
+            if (general.CaptureHotkey.VirtualKey is <= 0 or > 0xFF ||
+                ModifierVirtualKeys.Contains(general.CaptureHotkey.VirtualKey))
+            {
+                issues.Add(new ValidationIssue(
+                    "General.CaptureHotkey.VirtualKey",
+                    "The capture hotkey must use a non-modifier virtual key."));
+            }
         }
 
-        if (general.CaptureHotkey.VirtualKey is <= 0 or > 0xFF ||
-            ModifierVirtualKeys.Contains(general.CaptureHotkey.VirtualKey))
+        if (!LanguageCatalog.All.Any(
+                language => string.Equals(
+                    language.Code,
+                    general.DefaultTargetLanguage,
+                    StringComparison.Ordinal)))
         {
             issues.Add(new ValidationIssue(
-                "General.CaptureHotkey.VirtualKey",
-                "The capture hotkey must use a non-modifier virtual key."));
+                "General.DefaultTargetLanguage",
+                "The default target language must be supported."));
+        }
+
+        if (!Enum.IsDefined(typeof(AppTheme), general.Theme))
+        {
+            issues.Add(new ValidationIssue(
+                "General.Theme",
+                "The selected theme is invalid."));
         }
     }
 
-    private static void ValidateModel(ModelSettings model, ICollection<ValidationIssue> issues)
+    private static void ValidateModel(
+        ModelSettings model,
+        ICollection<ValidationIssue> issues,
+        bool requireApiKey)
     {
         if (!Uri.TryCreate(model.BaseUrl, UriKind.Absolute, out var baseUri) ||
             (baseUri.Scheme != Uri.UriSchemeHttp && baseUri.Scheme != Uri.UriSchemeHttps))
@@ -63,7 +121,7 @@ public static class SettingsValidator
             issues.Add(new ValidationIssue("Model.BaseUrl", "Base URL must be an absolute HTTP or HTTPS URL."));
         }
 
-        if (string.IsNullOrWhiteSpace(model.ApiKey))
+        if (model.ApiKey is null || (requireApiKey && string.IsNullOrWhiteSpace(model.ApiKey)))
         {
             issues.Add(new ValidationIssue("Model.ApiKey", "API key is required."));
         }

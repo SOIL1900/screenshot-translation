@@ -95,4 +95,13 @@ public sealed class SettingsValidatorTests
         Assert.DoesNotContain("General.CaptureHotkey.Modifiers", fields);
         Assert.DoesNotContain("General.CaptureHotkey.VirtualKey", fields);
     }
+
+    [Fact]
+    public void Persisted_validation_allows_the_first_run_empty_api_key()
+    {
+        var issues = SettingsValidator.ValidatePersisted(AppSettings.CreateDefault());
+
+        Assert.DoesNotContain(issues, issue => issue.Field == "Model.ApiKey");
+        Assert.Empty(issues);
+    }
 }

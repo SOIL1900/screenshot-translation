@@ -48,7 +48,17 @@ public sealed class JsonSettingsStore : ISettingsStore
                 SerializerOptions,
                 cancellationToken);
 
-            return settings ?? throw new JsonException("Settings JSON cannot be null.");
+            if (settings is null)
+            {
+                throw new JsonException("Settings JSON cannot be null.");
+            }
+
+            if (SettingsValidator.ValidatePersisted(settings).Count > 0)
+            {
+                throw new JsonException("Settings JSON violates persisted settings invariants.");
+            }
+
+            return settings;
         }
         catch (JsonException)
         {
