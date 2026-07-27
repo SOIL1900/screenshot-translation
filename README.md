@@ -53,6 +53,8 @@ The application maintains one current OpenAI-compatible model configuration. Eve
 
 The exact default model is `qwen3.7-flash`, and requests default to `enable_thinking: false`. The **测试连接** action sends a small real request to validate the URL, key, model permission, and response shape; the provider may charge for that request.
 
+Before screenshot upload, the selected PNG is normalized to a maximum 2048-pixel long edge and an 8 MiB encoded-PNG payload. Smaller PNGs are not upscaled; oversized images are resized proportionally and remain PNG.
+
 ## Privacy and local data
 
 Settings are stored at `%APPDATA%\ScreenshotTranslator\settings.json`. The API key is stored there in plaintext and remains visible in the normal Settings text box. The application does not use Windows Credential Manager, so protect the Windows account and this file accordingly. Do not commit a populated settings file or paste its contents into an issue.

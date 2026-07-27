@@ -34,7 +34,8 @@ public static class OpenAiRequestFactory
         ArgumentException.ThrowIfNullOrWhiteSpace(targetLanguageCode);
 
         var prompt = TranslationPrompts.CreateScreenshotPrompt(targetLanguageCode);
-        var dataUrl = $"data:image/png;base64,{Convert.ToBase64String(pngBytes.Span)}";
+        var normalizedPng = PngRequestImageNormalizer.Normalize(pngBytes);
+        var dataUrl = $"data:image/png;base64,{Convert.ToBase64String(normalizedPng)}";
         var content = new JsonArray
         {
             new JsonObject

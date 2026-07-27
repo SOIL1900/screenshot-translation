@@ -31,7 +31,7 @@ public sealed class OpenAiTranslationClientTests
         var client = new OpenAiTranslationClient(httpClient);
 
         var result = await client.TranslateScreenshotAsync(
-            new byte[] { 0x89, 0x50 },
+            TestPngFactory.CreateSolid(32, 16),
             "zh-CN",
             settings,
             CancellationToken.None);
@@ -153,7 +153,7 @@ public sealed class OpenAiTranslationClientTests
 
         var exception = await Assert.ThrowsAsync<TranslationClientException>(() =>
             client.TranslateScreenshotAsync(
-                new byte[] { 0x89, 0x50 },
+                TestPngFactory.CreateSolid(32, 16),
                 "zh-CN",
                 Settings(),
                 CancellationToken.None));
