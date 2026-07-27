@@ -10,3 +10,5 @@ TestResults/
 settings.json
 settings.json.tmp
 settings.corrupt-*.json
+*.msi
+*.wixpdb
