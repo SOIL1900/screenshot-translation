@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <InternalsVisibleTo Include="ScreenshotTranslation.App.Tests" />
     <ProjectReference Include="..\ScreenshotTranslation.Core\ScreenshotTranslation.Core.csproj" />
     <ProjectReference Include="..\ScreenshotTranslation.Infrastructure\ScreenshotTranslation.Infrastructure.csproj" />
   </ItemGroup>

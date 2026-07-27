@@ -38,6 +38,23 @@ public sealed class SettingsViewModelTests
     }
 
     [Fact]
+    public async Task Save_recovers_when_hotkey_registration_throws()
+    {
+        var fixture = SettingsViewModelFixture.Create(
+            hotkeyFailure: new InvalidOperationException("Native registration failed"));
+        fixture.ViewModel.ApiKey = "sk-edited";
+
+        await fixture.ViewModel.SaveCommand.ExecuteAsync(null);
+
+        Assert.Contains("重试", fixture.ViewModel.Errors["General.CaptureHotkey"]);
+        Assert.Contains("原设置仍然有效", fixture.ViewModel.PageError);
+        Assert.Null(fixture.SettingsStore.Saved);
+        Assert.Null(fixture.StartupService.Applied);
+        Assert.Null(fixture.ThemeService.Applied);
+        Assert.True(fixture.ViewModel.SaveCommand.CanExecute(null));
+    }
+
+    [Fact]
     public void Model_field_validation_reports_recovery_next_to_the_field()
     {
         var fixture = SettingsViewModelFixture.Create();
@@ -171,14 +188,17 @@ public sealed class SettingsViewModelTests
             bool hotkeyRegistrationSucceeds = true,
             bool holdConnectionTest = false,
             bool holdLoadingDelay = false,
-            Exception? connectionFailure = null)
+            Exception? connectionFailure = null,
+            Exception? hotkeyFailure = null)
         {
             var activeSettings = AppSettings.CreateDefault() with
             {
                 Model = AppSettings.CreateDefault().Model with { ApiKey = "sk-original" }
             };
             var settingsStore = new FakeSettingsStore(activeSettings);
-            var hotkeyService = new FakeHotkeyRegistrationService(hotkeyRegistrationSucceeds);
+            var hotkeyService = new FakeHotkeyRegistrationService(
+                hotkeyRegistrationSucceeds,
+                hotkeyFailure);
             var startupService = new FakeStartupRegistrationService();
             var themeService = new FakeThemeService();
             var translationClient = new FakeTranslationClient(holdConnectionTest, connectionFailure);
@@ -215,12 +235,19 @@ public sealed class SettingsViewModelTests
         }
     }
 
-    private sealed class FakeHotkeyRegistrationService(bool succeeds) : IHotkeyRegistrationService
+    private sealed class FakeHotkeyRegistrationService(
+        bool succeeds,
+        Exception? failure) : IHotkeyRegistrationService
     {
         public HotkeyGesture? Registered { get; private set; }
 
         public HotkeyRegistrationResult TryRegister(HotkeyGesture gesture)
         {
+            if (failure is not null)
+            {
+                throw failure;
+            }
+
             Registered = gesture;
             return succeeds
                 ? HotkeyRegistrationResult.Success

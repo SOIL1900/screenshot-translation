@@ -5,6 +5,7 @@ using ScreenshotTranslation.App.Services;
 using ScreenshotTranslation.Core.Abstractions;
 using ScreenshotTranslation.Core.Configuration;
 using ScreenshotTranslation.Core.Translation;
+using ScreenshotTranslation.Infrastructure.Windows;
 
 namespace ScreenshotTranslation.App.Settings;
 
@@ -393,7 +394,20 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
             }
 
             var candidate = BuildSettings();
-            var hotkeyResult = _hotkeyService.TryRegister(candidate.General.CaptureHotkey);
+            HotkeyRegistrationResult hotkeyResult;
+            try
+            {
+                hotkeyResult = _hotkeyService.TryRegister(candidate.General.CaptureHotkey);
+            }
+            catch (Exception)
+            {
+                _errors["General.CaptureHotkey"] = "快捷键注册失败，请检查组合后重试。";
+                PageError = "无法应用新的快捷键，原设置仍然有效。请重试。";
+                PublishErrors();
+                RequestFirstInvalidFieldFocus();
+                return;
+            }
+
             if (!hotkeyResult.Succeeded)
             {
                 _errors["General.CaptureHotkey"] = "该快捷键已被其他程序占用";

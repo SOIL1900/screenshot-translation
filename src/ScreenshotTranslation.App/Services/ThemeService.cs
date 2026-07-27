@@ -38,26 +38,53 @@ public sealed class ThemeService : IThemeService
             : LightThemeSource;
 
         var mergedDictionaries = _applicationResources.MergedDictionaries;
-        var existingThemes = mergedDictionaries
-            .Where(dictionary => IsThemeDictionary(dictionary.Source))
-            .ToArray();
-        foreach (var existingTheme in existingThemes)
+        var firstColorDictionaryIndex = -1;
+        var colorDictionaries = new List<ResourceDictionary>();
+        for (var index = 0; index < mergedDictionaries.Count; index++)
         {
-            mergedDictionaries.Remove(existingTheme);
+            var dictionary = mergedDictionaries[index];
+            if (!IsColorDictionarySource(dictionary.Source))
+            {
+                continue;
+            }
+
+            firstColorDictionaryIndex = firstColorDictionaryIndex < 0
+                ? index
+                : firstColorDictionaryIndex;
+            colorDictionaries.Add(dictionary);
         }
 
-        mergedDictionaries.Insert(0, new ResourceDictionary
+        foreach (var colorDictionary in colorDictionaries)
+        {
+            mergedDictionaries.Remove(colorDictionary);
+        }
+
+        var insertionIndex = firstColorDictionaryIndex < 0
+            ? 0
+            : Math.Min(firstColorDictionaryIndex, mergedDictionaries.Count);
+        mergedDictionaries.Insert(insertionIndex, new ResourceDictionary
         {
             Source = new Uri(themeSource, UriKind.Relative)
         });
     }
 
-    private static bool IsThemeDictionary(Uri? source)
+    internal static bool IsColorDictionarySource(Uri? source)
     {
-        var value = source?.OriginalString;
-        return value is not null &&
-            (value.EndsWith("/Themes/Colors.Light.xaml", StringComparison.OrdinalIgnoreCase) ||
-             value.EndsWith("/Themes/Colors.Dark.xaml", StringComparison.OrdinalIgnoreCase));
+        if (source is null)
+        {
+            return false;
+        }
+
+        var normalizedSource = Uri.UnescapeDataString(source.OriginalString).Replace('\\', '/');
+        var queryOrFragmentIndex = normalizedSource.IndexOfAny(['?', '#']);
+        if (queryOrFragmentIndex >= 0)
+        {
+            normalizedSource = normalizedSource[..queryOrFragmentIndex];
+        }
+
+        var fileName = normalizedSource[(normalizedSource.LastIndexOf('/') + 1)..];
+        return string.Equals(fileName, "Colors.Light.xaml", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(fileName, "Colors.Dark.xaml", StringComparison.OrdinalIgnoreCase);
     }
 
     private static AppTheme ReadSystemTheme()
