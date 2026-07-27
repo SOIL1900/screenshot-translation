@@ -12,8 +12,6 @@ public sealed class OverlayColorsTests
     {
         StaTestHost.Run(() =>
         {
-            var application = new ScreenshotTranslation.App.App();
-            application.InitializeComponent();
             var resources = Assert.IsType<ResourceDictionary>(WpfApplication.LoadComponent(
                 new Uri(
                     "/ScreenshotTranslation;component/Overlay/OverlayColors.xaml",
