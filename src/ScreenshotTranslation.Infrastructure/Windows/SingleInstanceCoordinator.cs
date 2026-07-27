@@ -12,16 +12,28 @@ public sealed class SingleInstanceCoordinator : IDisposable, IAsyncDisposable
 
     private const int ConnectionTimeoutMilliseconds = 2_000;
 
+    private readonly object _lifecycleLock = new();
     private readonly Dispatcher _dispatcher;
-    private readonly Mutex _mutex;
+    private readonly string _activationPipeName;
     private readonly bool _ownsMutex;
+    private Mutex? _mutex;
     private CancellationTokenSource? _listenerCancellation;
     private Task? _listenerTask;
-    private int _disposed;
+    private LifecycleState _lifecycleState;
 
     public SingleInstanceCoordinator(Dispatcher dispatcher)
+        : this(dispatcher, MutexName, ActivationPipeName)
+    {
+    }
+
+    internal SingleInstanceCoordinator(
+        Dispatcher dispatcher,
+        string mutexName,
+        string activationPipeName)
     {
         ArgumentNullException.ThrowIfNull(dispatcher);
+        ArgumentException.ThrowIfNullOrWhiteSpace(mutexName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(activationPipeName);
         if (!dispatcher.CheckAccess())
         {
             throw new InvalidOperationException(
@@ -29,7 +41,8 @@ public sealed class SingleInstanceCoordinator : IDisposable, IAsyncDisposable
         }
 
         _dispatcher = dispatcher;
-        _mutex = new Mutex(initiallyOwned: true, MutexName, out var createdNew);
+        _activationPipeName = activationPipeName;
+        _mutex = new Mutex(initiallyOwned: true, mutexName, out var createdNew);
         _ownsMutex = createdNew;
         IsPrimaryInstance = createdNew;
     }
@@ -38,35 +51,44 @@ public sealed class SingleInstanceCoordinator : IDisposable, IAsyncDisposable
 
     public void StartListening(Action activationCallback)
     {
-        ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
         ArgumentNullException.ThrowIfNull(activationCallback);
-        if (!IsPrimaryInstance)
-        {
-            throw new InvalidOperationException("Only the primary instance can listen for activation.");
-        }
 
-        if (_listenerTask is not null)
+        lock (_lifecycleLock)
         {
-            throw new InvalidOperationException("The activation listener has already been started.");
-        }
+            ObjectDisposedException.ThrowIf(_lifecycleState == LifecycleState.Disposed, this);
+            if (!IsPrimaryInstance)
+            {
+                throw new InvalidOperationException("Only the primary instance can listen for activation.");
+            }
 
-        _listenerCancellation = new CancellationTokenSource();
-        _listenerTask = ListenAsync(activationCallback, _listenerCancellation.Token);
+            if (_lifecycleState == LifecycleState.Listening)
+            {
+                throw new InvalidOperationException("The activation listener has already been started.");
+            }
+
+            var listenerCancellation = new CancellationTokenSource();
+            _listenerCancellation = listenerCancellation;
+            _listenerTask = ListenAsync(activationCallback, listenerCancellation.Token);
+            _lifecycleState = LifecycleState.Listening;
+        }
     }
 
     public async Task<bool> NotifyPrimaryAsync(CancellationToken cancellationToken = default)
     {
-        ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
-        if (IsPrimaryInstance)
+        lock (_lifecycleLock)
         {
-            throw new InvalidOperationException("The primary instance cannot notify itself.");
+            ObjectDisposedException.ThrowIf(_lifecycleState == LifecycleState.Disposed, this);
+            if (IsPrimaryInstance)
+            {
+                throw new InvalidOperationException("The primary instance cannot notify itself.");
+            }
         }
 
         try
         {
             using var client = new NamedPipeClientStream(
                 ".",
-                ActivationPipeName,
+                _activationPipeName,
                 PipeDirection.Out,
                 PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
             await client.ConnectAsync(ConnectionTimeoutMilliseconds, cancellationToken).ConfigureAwait(false);
@@ -94,80 +116,84 @@ public sealed class SingleInstanceCoordinator : IDisposable, IAsyncDisposable
 
     public void Dispose()
     {
-        if (Interlocked.Exchange(ref _disposed, 1) != 0)
+        var resources = BeginDispose();
+        if (resources is null)
         {
             return;
         }
 
         try
         {
-            StopListening();
+            StopListening(resources.ListenerCancellation, resources.ListenerTask);
         }
         finally
         {
-            ReleaseMutexAndDispose();
+            ReleaseMutexAndDispose(resources.Mutex);
             GC.SuppressFinalize(this);
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (Interlocked.Exchange(ref _disposed, 1) != 0)
+        var resources = BeginDispose();
+        if (resources is null)
         {
             return;
         }
 
         try
         {
-            await StopListeningAsync().ConfigureAwait(false);
+            await StopListeningAsync(
+                    resources.ListenerCancellation,
+                    resources.ListenerTask)
+                .ConfigureAwait(false);
         }
         finally
         {
-            await ReleaseMutexAndDisposeAsync().ConfigureAwait(false);
+            await ReleaseMutexAndDisposeAsync(resources.Mutex).ConfigureAwait(false);
             GC.SuppressFinalize(this);
         }
     }
 
-    private void StopListening()
+    private DisposalResources? BeginDispose()
     {
-        if (_listenerCancellation is not null)
+        lock (_lifecycleLock)
         {
-            try
+            if (_lifecycleState == LifecycleState.Disposed)
             {
-                _listenerCancellation.Cancel();
-                if (_listenerTask is not null)
-                {
-                    try
-                    {
-                        _listenerTask.GetAwaiter().GetResult();
-                    }
-                    catch (OperationCanceledException)
-                    {
-                    }
-                }
+                return null;
             }
-            finally
-            {
-                _listenerCancellation.Dispose();
-            }
+
+            _lifecycleState = LifecycleState.Disposed;
+            var mutex = _mutex ?? throw new InvalidOperationException("The instance mutex is unavailable.");
+            var resources = new DisposalResources(
+                _listenerCancellation,
+                _listenerTask,
+                mutex);
+            _listenerCancellation = null;
+            _listenerTask = null;
+            _mutex = null;
+            return resources;
         }
     }
 
-    private async Task StopListeningAsync()
+    private static void StopListening(
+        CancellationTokenSource? listenerCancellation,
+        Task? listenerTask)
     {
-        if (_listenerCancellation is null)
+        if (listenerCancellation is null)
         {
             return;
         }
 
         try
         {
-            await _listenerCancellation.CancelAsync().ConfigureAwait(false);
-            if (_listenerTask is not null)
+            listenerCancellation.Cancel();
+            if (listenerTask is not null)
             {
                 try
                 {
-                    await _listenerTask.ConfigureAwait(false);
+                    listenerTask.GetAwaiter().GetResult();
                 }
                 catch (OperationCanceledException)
                 {
@@ -176,7 +202,36 @@ public sealed class SingleInstanceCoordinator : IDisposable, IAsyncDisposable
         }
         finally
         {
-            _listenerCancellation.Dispose();
+            listenerCancellation.Dispose();
+        }
+    }
+
+    private static async Task StopListeningAsync(
+        CancellationTokenSource? listenerCancellation,
+        Task? listenerTask)
+    {
+        if (listenerCancellation is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await listenerCancellation.CancelAsync().ConfigureAwait(false);
+            if (listenerTask is not null)
+            {
+                try
+                {
+                    await listenerTask.ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                }
+            }
+        }
+        finally
+        {
+            listenerCancellation.Dispose();
         }
     }
 
@@ -204,7 +259,7 @@ public sealed class SingleInstanceCoordinator : IDisposable, IAsyncDisposable
         CancellationToken cancellationToken)
     {
         await using var server = new NamedPipeServerStream(
-            ActivationPipeName,
+            _activationPipeName,
             PipeDirection.In,
             maxNumberOfServerInstances: 1,
             PipeTransmissionMode.Byte,
@@ -224,36 +279,53 @@ public sealed class SingleInstanceCoordinator : IDisposable, IAsyncDisposable
         }
     }
 
-    private void ReleaseMutexAndDispose()
+    private void ReleaseMutexAndDispose(Mutex mutex)
     {
         if (_dispatcher.CheckAccess())
         {
-            ReleaseMutexAndDisposeCore();
+            ReleaseMutexAndDisposeCore(mutex);
         }
         else
         {
-            _dispatcher.Invoke(ReleaseMutexAndDisposeCore);
+            _dispatcher.Invoke(() => ReleaseMutexAndDisposeCore(mutex));
         }
     }
 
-    private async Task ReleaseMutexAndDisposeAsync()
+    private async Task ReleaseMutexAndDisposeAsync(Mutex mutex)
     {
         if (_dispatcher.CheckAccess())
         {
-            ReleaseMutexAndDisposeCore();
+            ReleaseMutexAndDisposeCore(mutex);
             return;
         }
 
-        await _dispatcher.InvokeAsync(ReleaseMutexAndDisposeCore).Task.ConfigureAwait(false);
+        await _dispatcher.InvokeAsync(() => ReleaseMutexAndDisposeCore(mutex)).Task.ConfigureAwait(false);
     }
 
-    private void ReleaseMutexAndDisposeCore()
+    private void ReleaseMutexAndDisposeCore(Mutex mutex)
     {
-        if (_ownsMutex)
+        try
         {
-            _mutex.ReleaseMutex();
+            if (_ownsMutex)
+            {
+                mutex.ReleaseMutex();
+            }
         }
-
-        _mutex.Dispose();
+        finally
+        {
+            mutex.Dispose();
+        }
     }
+
+    private enum LifecycleState
+    {
+        Ready,
+        Listening,
+        Disposed
+    }
+
+    private sealed record DisposalResources(
+        CancellationTokenSource? ListenerCancellation,
+        Task? ListenerTask,
+        Mutex Mutex);
 }

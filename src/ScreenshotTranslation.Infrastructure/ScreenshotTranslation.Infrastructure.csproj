@@ -5,6 +5,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="ScreenshotTranslation.Infrastructure.Tests" />
     <Using Include="System.IO" />
     <Using Include="System.Net.Http" />
   </ItemGroup>

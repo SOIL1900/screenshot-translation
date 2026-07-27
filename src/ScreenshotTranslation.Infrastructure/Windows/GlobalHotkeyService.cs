@@ -9,6 +9,17 @@ public sealed record HotkeyRegistrationResult(bool Succeeded, string? ErrorMessa
     public static HotkeyRegistrationResult Success { get; } = new(true, null);
 }
 
+internal interface IGlobalHotkeyNativeMethods
+{
+    bool RegisterHotKey(
+        nint windowHandle,
+        int identifier,
+        uint modifiers,
+        uint virtualKey);
+
+    bool UnregisterHotKey(nint windowHandle, int identifier);
+}
+
 public sealed class GlobalHotkeyService : IDisposable
 {
     private const int WmHotkey = 0x0312;
@@ -21,13 +32,22 @@ public sealed class GlobalHotkeyService : IDisposable
     private const int SecondHotkeyId = 0x5344;
     private static readonly nint MessageOnlyWindow = new(-3);
 
+    private readonly IGlobalHotkeyNativeMethods _nativeMethods;
     private readonly HwndSource _window;
     private int? _registeredHotkeyId;
     private HotkeyGesture? _registeredGesture;
     private bool _disposed;
 
     public GlobalHotkeyService()
+        : this(Win32GlobalHotkeyNativeMethods.Instance)
     {
+    }
+
+    internal GlobalHotkeyService(IGlobalHotkeyNativeMethods nativeMethods)
+    {
+        ArgumentNullException.ThrowIfNull(nativeMethods);
+        _nativeMethods = nativeMethods;
+
         var parameters = new HwndSourceParameters("ScreenshotTranslation.GlobalHotkey")
         {
             ParentWindow = MessageOnlyWindow,
@@ -60,7 +80,7 @@ public sealed class GlobalHotkeyService : IDisposable
         var candidateId = _registeredHotkeyId == FirstHotkeyId
             ? SecondHotkeyId
             : FirstHotkeyId;
-        if (!RegisterHotKey(
+        if (!_nativeMethods.RegisterHotKey(
                 _window.Handle,
                 candidateId,
                 modifiers | ModNoRepeat,
@@ -71,7 +91,11 @@ public sealed class GlobalHotkeyService : IDisposable
 
         if (_registeredHotkeyId is { } previousId)
         {
-            _ = UnregisterHotKey(_window.Handle, previousId);
+            if (!_nativeMethods.UnregisterHotKey(_window.Handle, previousId))
+            {
+                _ = _nativeMethods.UnregisterHotKey(_window.Handle, candidateId);
+                return new HotkeyRegistrationResult(false, "无法更新快捷键，请重试或选择其他组合。");
+            }
         }
 
         _registeredHotkeyId = candidateId;
@@ -89,7 +113,7 @@ public sealed class GlobalHotkeyService : IDisposable
         _disposed = true;
         if (_registeredHotkeyId is { } hotkeyId)
         {
-            _ = UnregisterHotKey(_window.Handle, hotkeyId);
+            _ = _nativeMethods.UnregisterHotKey(_window.Handle, hotkeyId);
             _registeredHotkeyId = null;
             _registeredGesture = null;
         }
@@ -154,15 +178,30 @@ public sealed class GlobalHotkeyService : IDisposable
         return true;
     }
 
-    [DllImport("user32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool RegisterHotKey(
-        nint windowHandle,
-        int identifier,
-        uint modifiers,
-        uint virtualKey);
+    private sealed class Win32GlobalHotkeyNativeMethods : IGlobalHotkeyNativeMethods
+    {
+        public static Win32GlobalHotkeyNativeMethods Instance { get; } = new();
 
-    [DllImport("user32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool UnregisterHotKey(nint windowHandle, int identifier);
+        public bool RegisterHotKey(
+            nint windowHandle,
+            int identifier,
+            uint modifiers,
+            uint virtualKey) =>
+            NativeRegisterHotKey(windowHandle, identifier, modifiers, virtualKey);
+
+        public bool UnregisterHotKey(nint windowHandle, int identifier) =>
+            NativeUnregisterHotKey(windowHandle, identifier);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool NativeRegisterHotKey(
+            nint windowHandle,
+            int identifier,
+            uint modifiers,
+            uint virtualKey);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool NativeUnregisterHotKey(nint windowHandle, int identifier);
+    }
 }
