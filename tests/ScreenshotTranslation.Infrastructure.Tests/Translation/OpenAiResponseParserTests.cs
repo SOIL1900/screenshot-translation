@@ -28,15 +28,17 @@ public sealed class OpenAiResponseParserTests
         Assert.Empty(result.Translation);
     }
 
-    [Fact]
-    public void Parser_falls_back_to_unambiguous_pure_text()
+    [Theory]
+    [InlineData("  你好，队友！  ", "你好，队友！")]
+    [InlineData("Alice: 你好！\nBob: 去 B 点。\nGG", "Alice: 你好！\nBob: 去 B 点。\nGG")]
+    public void Parser_falls_back_to_unambiguous_pure_text(string content, string expected)
     {
-        var result = OpenAiResponseParser.ParseScreenshotContent("  你好，队友！  ");
+        var result = OpenAiResponseParser.ParseScreenshotContent(content);
 
         Assert.Equal(TranslationResultStatus.Ok, result.Status);
         Assert.Equal("Unknown", result.SourceLanguage);
         Assert.Equal("und", result.SourceLanguageCode);
-        Assert.Equal("你好，队友！", result.Translation);
+        Assert.Equal(expected, result.Translation);
     }
 
     [Theory]
@@ -44,8 +46,19 @@ public sealed class OpenAiResponseParserTests
     [InlineData("   ")]
     [InlineData("{ not valid json }")]
     [InlineData("```json\n{ not valid json }\n```")]
+    [InlineData("```json\nnot json\n```")]
+    [InlineData("```json\n{\"status\":\"ok\"}\n")]
     [InlineData("{\"status\":\"ok\",\"translation\":\"hello\"}")]
     [InlineData("{\"status\":\"unexpected\",\"sourceLanguage\":\"English\",\"sourceLanguageCode\":\"en\",\"translation\":\"hello\"}")]
+    [InlineData("Here is the translation:\n你好")]
+    [InlineData("Sure, here's the translation:\n你好")]
+    [InlineData("The translation is:\n你好")]
+    [InlineData("Sorry, I cannot translate this image")]
+    [InlineData("I'm sorry, but I can't translate this screenshot.")]
+    [InlineData("以下是翻译：\nHello")]
+    [InlineData("翻译如下：\nHello")]
+    [InlineData("抱歉，我无法翻译这张图片")]
+    [InlineData("对不起，我不能翻译这个截图")]
     public void Parser_rejects_invalid_or_incomplete_screenshot_content(string content)
     {
         var exception = Assert.Throws<TranslationClientException>(

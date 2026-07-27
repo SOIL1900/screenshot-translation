@@ -137,6 +137,32 @@ public sealed class OpenAiTranslationClientTests
     }
 
     [Fact]
+    public async Task Explanatory_screenshot_content_is_invalid_and_reasoning_is_not_surfaced()
+    {
+        using var httpClient = ClientReturning("""
+            {
+              "choices": [{
+                "message": {
+                  "reasoning_content": "secret reasoning",
+                  "content": "Here is the translation:\n你好"
+                }
+              }]
+            }
+            """);
+        var client = new OpenAiTranslationClient(httpClient);
+
+        var exception = await Assert.ThrowsAsync<TranslationClientException>(() =>
+            client.TranslateScreenshotAsync(
+                new byte[] { 0x89, 0x50 },
+                "zh-CN",
+                Settings(),
+                CancellationToken.None));
+
+        Assert.Equal(TranslationErrorCode.InvalidResponse, exception.Code);
+        Assert.DoesNotContain("secret reasoning", exception.Message);
+    }
+
+    [Fact]
     public async Task Caller_cancellation_is_not_remapped_as_timeout()
     {
         using var source = new CancellationTokenSource();

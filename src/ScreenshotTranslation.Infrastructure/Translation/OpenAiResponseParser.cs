@@ -5,17 +5,101 @@ namespace ScreenshotTranslation.Infrastructure.Translation;
 
 public static class OpenAiResponseParser
 {
+    private static readonly string[] EnglishExplanationPrefixes =
+    [
+        "here is the translation",
+        "here's the translation",
+        "here is your translation",
+        "the translation is",
+        "translation:",
+        "translated text:",
+        "sure, here is the translation",
+        "sure, here's the translation",
+        "certainly, here is the translation",
+        "certainly, here's the translation"
+    ];
+
+    private static readonly string[] ChineseExplanationPrefixes =
+    [
+        "以下是翻译",
+        "以下为翻译",
+        "下面是翻译",
+        "翻译如下",
+        "译文如下",
+        "这是翻译",
+        "翻译结果"
+    ];
+
+    private static readonly string[] EnglishRefusalPrefixes =
+    [
+        "sorry",
+        "i'm sorry",
+        "i’m sorry",
+        "i am sorry",
+        "i cannot",
+        "i can't",
+        "i can’t",
+        "i am unable",
+        "i'm unable",
+        "i’m unable",
+        "unable to"
+    ];
+
+    private static readonly string[] EnglishInabilityTerms =
+    [
+        "cannot",
+        "can't",
+        "can’t",
+        "unable",
+        "not able",
+        "won't",
+        "will not"
+    ];
+
+    private static readonly string[] EnglishResponseTopics =
+    [
+        "translat",
+        "image",
+        "screenshot",
+        "request",
+        "assist",
+        "help"
+    ];
+
+    private static readonly string[] ChineseRefusalPrefixes =
+    [
+        "抱歉",
+        "很抱歉",
+        "对不起",
+        "我无法",
+        "我不能",
+        "我没法",
+        "无法",
+        "不能"
+    ];
+
+    private static readonly string[] ChineseInabilityTerms = ["无法", "不能", "没法", "不支持"];
+    private static readonly string[] ChineseResponseTopics = ["翻译", "图片", "图像", "截图", "请求", "帮助"];
+    private static readonly string[] EnglishMetaPrefixes = ["as an ai", "as a language model"];
+    private static readonly string[] ChineseMetaPrefixes = ["作为AI", "作为 AI", "作为一个AI", "作为一个 AI"];
+
     public static ScreenshotTranslationResult ParseScreenshotContent(string content)
     {
-        string candidate = StripOptionalFence(content);
+        NormalizedContent normalized = NormalizeContent(content);
+        string candidate = normalized.Text;
         if (string.IsNullOrWhiteSpace(candidate))
         {
             throw InvalidResponse("The model returned empty translation content.");
         }
 
-        if (LooksLikeJson(candidate))
+        if (normalized.IsJsonFence || LooksLikeJson(candidate))
         {
             return ParseScreenshotJson(candidate);
+        }
+
+        if (LooksLikeExplanatoryOrRefusalText(candidate))
+        {
+            throw InvalidResponse("The model returned explanatory or refusal text instead of a translation.");
         }
 
         return new ScreenshotTranslationResult(
@@ -29,8 +113,12 @@ public static class OpenAiResponseParser
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(targetLanguageCode);
 
-        string translation = StripOptionalFence(content).Trim();
-        if (string.IsNullOrWhiteSpace(translation) || LooksLikeJson(translation))
+        NormalizedContent normalized = NormalizeContent(content);
+        string translation = normalized.Text.Trim();
+        if (string.IsNullOrWhiteSpace(translation) ||
+            normalized.IsJsonFence ||
+            LooksLikeJson(translation) ||
+            LooksLikeExplanatoryOrRefusalText(translation))
         {
             throw InvalidResponse("The model returned no usable reply translation.");
         }
@@ -121,27 +209,49 @@ public static class OpenAiResponseParser
         }
     }
 
-    private static string StripOptionalFence(string content)
+    private static NormalizedContent NormalizeContent(string content)
     {
         if (content is null)
         {
-            return string.Empty;
+            return new NormalizedContent(string.Empty, false);
         }
 
         string candidate = content.Trim();
-        if (!candidate.StartsWith("```", StringComparison.Ordinal) ||
-            !candidate.EndsWith("```", StringComparison.Ordinal))
+        bool startsWithFence = candidate.StartsWith("```", StringComparison.Ordinal);
+        bool endsWithFence = candidate.EndsWith("```", StringComparison.Ordinal);
+
+        if (!startsWithFence && !endsWithFence)
         {
-            return candidate;
+            if (candidate.Contains("```", StringComparison.Ordinal))
+            {
+                throw InvalidResponse("The model returned malformed fenced content.");
+            }
+
+            return new NormalizedContent(candidate, false);
+        }
+
+        if (!startsWithFence || !endsWithFence)
+        {
+            throw InvalidResponse("The model returned malformed fenced content.");
         }
 
         int firstLineBreak = candidate.IndexOf('\n');
         if (firstLineBreak < 0)
         {
-            return string.Empty;
+            throw InvalidResponse("The model returned malformed fenced content.");
         }
 
-        return candidate[(firstLineBreak + 1)..^3].Trim();
+        string openingFence = candidate[..firstLineBreak].TrimEnd('\r');
+        string fenceLanguage = openingFence[3..].Trim();
+        string inner = candidate[(firstLineBreak + 1)..^3].Trim();
+        if (inner.Contains("```", StringComparison.Ordinal))
+        {
+            throw InvalidResponse("The model returned malformed fenced content.");
+        }
+
+        return new NormalizedContent(
+            inner,
+            string.Equals(fenceLanguage, "json", StringComparison.OrdinalIgnoreCase));
     }
 
     private static bool LooksLikeJson(string content)
@@ -149,6 +259,37 @@ public static class OpenAiResponseParser
         string candidate = content.TrimStart();
         return candidate.StartsWith('{') || candidate.StartsWith('[');
     }
+
+    private static bool LooksLikeExplanatoryOrRefusalText(string content)
+    {
+        string trimmed = content.TrimStart();
+        string lower = trimmed.ToLowerInvariant();
+
+        if (StartsWithAny(lower, EnglishExplanationPrefixes) ||
+            StartsWithAny(trimmed, ChineseExplanationPrefixes) ||
+            StartsWithAny(lower, EnglishMetaPrefixes) ||
+            StartsWithAny(trimmed, ChineseMetaPrefixes))
+        {
+            return true;
+        }
+
+        bool isEnglishRefusal =
+            StartsWithAny(lower, EnglishRefusalPrefixes) &&
+            ContainsAny(lower, EnglishInabilityTerms) &&
+            ContainsAny(lower, EnglishResponseTopics);
+        bool isChineseRefusal =
+            StartsWithAny(trimmed, ChineseRefusalPrefixes) &&
+            ContainsAny(trimmed, ChineseInabilityTerms) &&
+            ContainsAny(trimmed, ChineseResponseTopics);
+
+        return isEnglishRefusal || isChineseRefusal;
+    }
+
+    private static bool StartsWithAny(string content, IEnumerable<string> prefixes) =>
+        prefixes.Any(prefix => content.StartsWith(prefix, StringComparison.Ordinal));
+
+    private static bool ContainsAny(string content, IEnumerable<string> terms) =>
+        terms.Any(term => content.Contains(term, StringComparison.Ordinal));
 
     private static bool TryGetString(JsonElement root, string propertyName, out string value)
     {
@@ -171,4 +312,6 @@ public static class OpenAiResponseParser
 
     private static TranslationClientException InvalidResponse(string message, Exception? inner = null) =>
         new(TranslationErrorCode.InvalidResponse, message, inner);
+
+    private readonly record struct NormalizedContent(string Text, bool IsJsonFence);
 }
