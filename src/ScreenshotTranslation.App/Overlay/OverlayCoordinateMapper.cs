@@ -53,3 +53,20 @@ public sealed class OverlayCoordinateMapper
     [DllImport("user32.dll")]
     private static extern uint GetDpiForWindow(nint windowHandle);
 }
+
+internal sealed class OverlayCoordinateMapperState
+{
+    public OverlayCoordinateMapper Current { get; private set; } = new(96, 96);
+
+    public OverlayCoordinateMapper Refresh(uint dpiX, uint dpiY)
+    {
+        Current = new OverlayCoordinateMapper(dpiX, dpiY);
+        return Current;
+    }
+
+    public OverlayCoordinateMapper RefreshFromWindow(nint windowHandle)
+    {
+        Current = OverlayCoordinateMapper.FromWindow(windowHandle);
+        return Current;
+    }
+}

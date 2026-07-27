@@ -17,13 +17,15 @@ namespace ScreenshotTranslation.App.Overlay;
 public partial class CaptureOverlayWindow : Window
 {
     private static readonly nint TopmostWindow = new(-1);
+    private const int WmDpiChanged = 0x02E0;
     private const uint SwpShowWindow = 0x0040;
 
     private readonly CapturedMonitorFrame _frame;
     private readonly OverlayViewModel _viewModel;
     private readonly nint _previousForegroundWindow;
     private readonly ForegroundWindowService _foregroundWindowService;
-    private OverlayCoordinateMapper _coordinateMapper = new(96, 96);
+    private readonly OverlayCoordinateMapperState _coordinateMapperState = new();
+    private HwndSource? _windowSource;
 
     public CaptureOverlayWindow(
         CapturedMonitorFrame frame,
@@ -68,9 +70,6 @@ public partial class CaptureOverlayWindow : Window
     {
         var windowHandle = new WindowInteropHelper(this).Handle;
         var bounds = _frame.Monitor.PhysicalBounds;
-        _coordinateMapper = OverlayCoordinateMapper.FromWindow(windowHandle);
-        SelectionSurface.SetCoordinateMapper(_coordinateMapper);
-
         if (!SetWindowPos(
                 windowHandle,
                 TopmostWindow,
@@ -83,9 +82,38 @@ public partial class CaptureOverlayWindow : Window
             throw new Win32Exception(Marshal.GetLastWin32Error(), "Unable to position the capture overlay.");
         }
 
-        UpdateResultPanelPosition();
+        ApplyCoordinateMapper(_coordinateMapperState.RefreshFromWindow(windowHandle));
+        _windowSource = HwndSource.FromHwnd(windowHandle);
+        _windowSource?.AddHook(OnWindowMessage);
         _ = Activate();
         _ = SelectionSurface.Focus();
+    }
+
+    private nint OnWindowMessage(
+        nint windowHandle,
+        int message,
+        nint wParam,
+        nint lParam,
+        ref bool handled)
+    {
+        if (message == WmDpiChanged)
+        {
+            var packedDpi = unchecked((ulong)wParam.ToInt64());
+            var dpiX = (uint)(packedDpi & 0xFFFF);
+            var dpiY = (uint)((packedDpi >> 16) & 0xFFFF);
+            if (dpiX > 0 && dpiY > 0)
+            {
+                ApplyCoordinateMapper(_coordinateMapperState.Refresh(dpiX, dpiY));
+            }
+        }
+
+        return nint.Zero;
+    }
+
+    private void ApplyCoordinateMapper(OverlayCoordinateMapper coordinateMapper)
+    {
+        SelectionSurface.SetCoordinateMapper(coordinateMapper);
+        UpdateResultPanelPosition();
     }
 
     private async void OnPointerActionCompleted(object? sender, EventArgs eventArgs)
@@ -136,8 +164,9 @@ public partial class CaptureOverlayWindow : Window
             return;
         }
 
-        var screenDip = _coordinateMapper.ToDip(_viewModel.ScreenBounds);
-        var selectionDip = _coordinateMapper.ToDip(selection);
+        var coordinateMapper = _coordinateMapperState.Current;
+        var screenDip = coordinateMapper.ToDip(_viewModel.ScreenBounds);
+        var selectionDip = coordinateMapper.ToDip(selection);
         var panelWidthDip = Math.Min(
             screenDip.Width,
             Math.Clamp(
@@ -148,15 +177,15 @@ public partial class CaptureOverlayWindow : Window
         ResultPanel.Width = panelWidthDip;
         ResultPanel.Height = panelHeightDip;
 
-        var panelWidthPhysical = _coordinateMapper.DipLengthToPhysicalX(panelWidthDip);
-        var panelHeightPhysical = _coordinateMapper.DipLengthToPhysicalY(panelHeightDip);
+        var panelWidthPhysical = coordinateMapper.DipLengthToPhysicalX(panelWidthDip);
+        var panelHeightPhysical = coordinateMapper.DipLengthToPhysicalY(panelHeightDip);
         var panelBounds = ResultPanelPlacement.Place(
             selection,
             panelWidthPhysical,
             panelHeightPhysical,
             _viewModel.ScreenBounds,
             OverlayViewModel.PanelGap);
-        var panelBoundsDip = _coordinateMapper.ToDip(panelBounds);
+        var panelBoundsDip = coordinateMapper.ToDip(panelBounds);
         Canvas.SetLeft(ResultPanel, panelBoundsDip.X);
         Canvas.SetTop(ResultPanel, panelBoundsDip.Y);
         ResultPanel.Visibility = Visibility.Visible;
@@ -164,6 +193,8 @@ public partial class CaptureOverlayWindow : Window
 
     private void OnWindowClosed(object? sender, EventArgs eventArgs)
     {
+        _windowSource?.RemoveHook(OnWindowMessage);
+        _windowSource = null;
         ResultPanel.Loaded -= OnResultPanelLoaded;
         _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
         _viewModel.CloseRequested -= OnCloseRequested;

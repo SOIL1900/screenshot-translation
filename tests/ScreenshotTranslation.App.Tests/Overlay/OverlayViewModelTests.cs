@@ -342,6 +342,26 @@ public sealed class OverlayViewModelTests
     }
 
     [Fact]
+    public void Coordinate_mapper_state_refreshes_from_initial_to_target_monitor_dpi()
+    {
+        var state = new OverlayCoordinateMapperState();
+
+        Assert.Equal(
+            new PixelPoint(100, 80),
+            state.Current.ToPhysical(new System.Windows.Point(100, 80)));
+
+        var refreshed = state.Refresh(144, 120);
+
+        Assert.Same(refreshed, state.Current);
+        Assert.Equal(
+            new PixelPoint(150, 100),
+            state.Current.ToPhysical(new System.Windows.Point(100, 80)));
+        Assert.Equal(
+            new System.Windows.Rect(100, 80, 200, 160),
+            state.Current.ToDip(new PixelRect(150, 100, 300, 200)));
+    }
+
+    [Fact]
     public void View_model_rejects_global_desktop_screen_bounds()
     {
         var exception = Assert.Throws<ArgumentException>(() =>
