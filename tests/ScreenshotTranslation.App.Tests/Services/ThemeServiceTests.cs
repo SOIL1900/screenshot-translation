@@ -2,6 +2,7 @@ using System.Windows;
 using ScreenshotTranslation.App.Services;
 using ScreenshotTranslation.App.Overlay;
 using ScreenshotTranslation.Core.Configuration;
+using ScreenshotTranslation.Core.Translation;
 using WpfButton = System.Windows.Controls.Button;
 using WpfComboBox = System.Windows.Controls.ComboBox;
 using WpfScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility;
@@ -81,9 +82,13 @@ public sealed class ThemeServiceTests
                     new Uri(
                         "/ScreenshotTranslation;component/Overlay/OverlayColors.xaml",
                         UriKind.Relative))));
-            var panel = new TranslationPanelView { Width = 920, Height = 166 };
-            panel.Measure(new System.Windows.Size(920, 166));
-            panel.Arrange(new System.Windows.Rect(0, 0, 920, 166));
+            var panel = new TranslationPanelView
+            {
+                Width = 920,
+                DataContext = new PanelPreviewData(),
+            };
+            panel.Measure(new System.Windows.Size(920, OverlayViewModel.PanelMaximumHeight));
+            panel.Arrange(new System.Windows.Rect(0, 0, 920, panel.DesiredSize.Height));
             panel.UpdateLayout();
 
             var replyInputTop = panel.ReplyInput.TranslatePoint(new System.Windows.Point(), panel).Y;
@@ -91,6 +96,8 @@ public sealed class ThemeServiceTests
             Assert.Equal(replyInputTop, replyOutputTop, precision: 3);
             Assert.Equal(32, panel.ReplyInput.ActualHeight, precision: 3);
             Assert.Equal(32, panel.ReplyTranslationOutput.ActualHeight, precision: 3);
+            Assert.True(panel.ScreenshotTranslationOutput.ActualHeight > 32);
+            Assert.True(panel.ActualHeight > OverlayViewModel.PanelMinimumHeight);
             Assert.Equal(
                 WpfScrollBarVisibility.Disabled,
                 panel.ScreenshotTranslationOutput.HorizontalScrollBarVisibility);
@@ -102,6 +109,17 @@ public sealed class ThemeServiceTests
             var languageItemForeground = Assert.IsType<WpfSolidColorBrush>(
                 languageItemText.Foreground);
             Assert.Equal(System.Windows.Media.Colors.White, languageItemForeground.Color);
+            var copyButtonText = Assert.IsType<WpfTextBlock>(panel.CopyScreenshotButton.Content);
+            var copyButtonForeground = Assert.IsType<WpfSolidColorBrush>(copyButtonText.Foreground);
+            Assert.Equal(System.Windows.Media.Colors.White, copyButtonForeground.Color);
+            panel.RetryScreenshotButton.IsEnabled = false;
+            panel.UpdateLayout();
+            Assert.Equal(1, panel.RetryScreenshotButton.Opacity);
+            var retryButtonText = Assert.IsType<WpfTextBlock>(panel.RetryScreenshotButton.Content);
+            var retryButtonForeground = Assert.IsType<WpfSolidColorBrush>(retryButtonText.Foreground);
+            Assert.Equal(
+                System.Windows.Media.Color.FromRgb(0xA9, 0xA6, 0xB4),
+                retryButtonForeground.Color);
         });
     }
 
@@ -154,5 +172,29 @@ public sealed class ThemeServiceTests
                     $"The STA theme operation failed: {failure.GetType().Name}: {failure.Message}");
             }
         }
+    }
+
+    private sealed class PanelPreviewData
+    {
+        public IReadOnlyList<LanguageOption> Languages { get; } = LanguageCatalog.All;
+
+        public string ScreenshotTargetLanguage { get; } = "zh-CN";
+
+        public string ScreenshotTranslation { get; } = string.Concat(
+            Enumerable.Repeat("这是一段用于验证翻译内容框能够根据文字长度自动换行并增加高度的中文译文。", 8));
+
+        public bool IsScreenshotLoadingVisible { get; } = false;
+
+        public string StatusMessage { get; } = "截图翻译完成";
+
+        public string ReplyInput { get; set; } = string.Empty;
+
+        public string ReplyTargetLanguage { get; set; } = "en";
+
+        public string ReplyTranslation { get; } = "Short reply";
+
+        public string ReplyStatusMessage { get; } = "回复翻译完成";
+
+        public string ClipboardError { get; } = string.Empty;
     }
 }

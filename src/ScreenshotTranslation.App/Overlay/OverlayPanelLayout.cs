@@ -12,7 +12,8 @@ internal static class OverlayPanelLayout
     public static OverlayPanelLayoutResult Calculate(
         PixelRect selection,
         PixelRect frameLocalWorkArea,
-        OverlayCoordinateMapper coordinateMapper)
+        OverlayCoordinateMapper coordinateMapper,
+        double desiredHeightDip)
     {
         ArgumentNullException.ThrowIfNull(coordinateMapper);
         if (frameLocalWorkArea.Width <= 0 || frameLocalWorkArea.Height <= 0)
@@ -20,6 +21,12 @@ internal static class OverlayPanelLayout
             throw new ArgumentOutOfRangeException(
                 nameof(frameLocalWorkArea),
                 "The monitor work area must have positive dimensions.");
+        }
+        if (!double.IsFinite(desiredHeightDip) || desiredHeightDip <= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(desiredHeightDip),
+                "The desired panel height must be a positive finite number.");
         }
 
         var workAreaDip = coordinateMapper.ToDip(frameLocalWorkArea);
@@ -30,7 +37,12 @@ internal static class OverlayPanelLayout
                 selectionDip.Width,
                 OverlayViewModel.PanelMinimumWidth,
                 OverlayViewModel.PanelMaximumWidth));
-        var heightDip = Math.Min(workAreaDip.Height, OverlayViewModel.PanelHeight);
+        var heightDip = Math.Min(
+            workAreaDip.Height,
+            Math.Clamp(
+                desiredHeightDip,
+                OverlayViewModel.PanelMinimumHeight,
+                OverlayViewModel.PanelMaximumHeight));
         var widthPhysical = Math.Min(
             frameLocalWorkArea.Width,
             coordinateMapper.DipLengthToPhysicalX(widthDip));

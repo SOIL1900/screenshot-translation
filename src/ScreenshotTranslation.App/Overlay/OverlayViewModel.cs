@@ -30,7 +30,8 @@ public sealed class OverlayViewModel : INotifyPropertyChanged
     public const int MinimumSelectionSize = 24;
     public const int PanelMinimumWidth = 760;
     public const int PanelMaximumWidth = 1080;
-    public const int PanelHeight = 166;
+    public const int PanelMinimumHeight = 166;
+    public const int PanelMaximumHeight = 390;
     public const int PanelGap = 12;
 
     private static readonly TimeSpan LoadingDelay = TimeSpan.FromMilliseconds(300);

@@ -145,10 +145,13 @@
                                Visibility="{Binding IsSaving, Converter={StaticResource BooleanToVisibilityConverter}}"
                                Style="{StaticResource SecondaryTextStyle}" />
                     <Button MinWidth="92"
-                            Content="保存设置"
                             Command="{Binding SaveCommand}"
                             Style="{StaticResource PrimaryButtonStyle}"
-                            AutomationProperties.Name="保存设置" />
+                            AutomationProperties.Name="保存设置">
+                        <TextBlock Foreground="#FFFFFF"
+                                   FontWeight="SemiBold"
+                                   Text="保存设置" />
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>

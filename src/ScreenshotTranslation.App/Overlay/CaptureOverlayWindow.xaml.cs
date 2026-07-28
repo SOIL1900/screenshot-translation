@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using ScreenshotTranslation.Core.Geometry;
 using ScreenshotTranslation.Infrastructure.Windows;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
@@ -152,6 +153,13 @@ public partial class CaptureOverlayWindow : Window
         {
             UpdateResultPanelPosition();
         }
+        else if (eventArgs.PropertyName is nameof(OverlayViewModel.ScreenshotTranslation) or
+                 nameof(OverlayViewModel.ReplyTranslation))
+        {
+            _ = Dispatcher.BeginInvoke(
+                DispatcherPriority.Loaded,
+                new Action(UpdateResultPanelPosition));
+        }
     }
 
     private void OnResultPanelLoaded(object sender, RoutedEventArgs eventArgs) => UpdateResultPanelPosition();
@@ -164,11 +172,26 @@ public partial class CaptureOverlayWindow : Window
             return;
         }
 
+        ResultPanel.Visibility = Visibility.Hidden;
         var coordinateMapper = _coordinateMapperState.Current;
+        var minimumLayout = OverlayPanelLayout.Calculate(
+            selection,
+            _frame.Monitor.FrameLocalWorkArea,
+            coordinateMapper,
+            OverlayViewModel.PanelMinimumHeight);
+        var workAreaDip = coordinateMapper.ToDip(_frame.Monitor.FrameLocalWorkArea);
+        ResultPanel.Width = minimumLayout.WidthDip;
+        ResultPanel.ClearValue(HeightProperty);
+        ResultPanel.InvalidateMeasure();
+        ResultPanel.Measure(new System.Windows.Size(
+            minimumLayout.WidthDip,
+            Math.Min(workAreaDip.Height, OverlayViewModel.PanelMaximumHeight)));
+
         var layout = OverlayPanelLayout.Calculate(
             selection,
             _frame.Monitor.FrameLocalWorkArea,
-            coordinateMapper);
+            coordinateMapper,
+            ResultPanel.DesiredSize.Height);
         ResultPanel.Width = layout.WidthDip;
         ResultPanel.Height = layout.HeightDip;
 

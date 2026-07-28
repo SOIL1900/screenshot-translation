@@ -1,7 +1,7 @@
 <UserControl x:Class="ScreenshotTranslation.App.Overlay.TranslationPanelView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Height="166"
+             MaxHeight="390"
              AutomationProperties.Name="截图翻译结果面板">
     <UserControl.Resources>
         <Style x:Key="OverlayCompactButtonStyle"
@@ -12,9 +12,18 @@
             <Setter Property="Height" Value="32" />
             <Setter Property="Padding" Value="10,5" />
             <Setter Property="FontSize" Value="12.5" />
+            <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Background" Value="{DynamicResource Overlay.Brush.Input}" />
             <Setter Property="Foreground" Value="{DynamicResource Overlay.Brush.TextPrimary}" />
             <Setter Property="BorderBrush" Value="{DynamicResource Overlay.Brush.Border}" />
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="1" />
+                    <Setter Property="Background" Value="#22222C" />
+                    <Setter Property="BorderBrush" Value="#353542" />
+                    <Setter Property="Foreground" Value="#A9A6B4" />
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
         <Style x:Key="OverlayAccentButtonStyle"
@@ -108,14 +117,16 @@
                TargetType="{x:Type TextBox}"
                BasedOn="{StaticResource {x:Type TextBox}}">
             <Setter Property="MinHeight" Value="32" />
-            <Setter Property="Height" Value="32" />
-            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="MaxHeight" Value="144" />
+            <Setter Property="Padding" Value="10,2" />
             <Setter Property="Background" Value="{DynamicResource Overlay.Brush.Input}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="{DynamicResource Overlay.Brush.TextPrimary}" />
             <Setter Property="IsReadOnly" Value="True" />
-            <Setter Property="TextWrapping" Value="NoWrap" />
-            <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
+            <Setter Property="AcceptsReturn" Value="True" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="VerticalContentAlignment" Value="Top" />
+            <Setter Property="VerticalScrollBarVisibility" Value="Disabled" />
             <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
         </Style>
 
@@ -148,14 +159,14 @@
         </Border.Effect>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="65" />
+                <RowDefinition MinHeight="65" Height="Auto" />
                 <RowDefinition Height="1" />
-                <RowDefinition Height="*" />
+                <RowDefinition MinHeight="76" Height="Auto" />
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="42" />
+                    <RowDefinition MinHeight="42" Height="Auto" />
                     <RowDefinition Height="23" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
@@ -184,7 +195,8 @@
                 <ComboBox x:Name="ScreenshotTargetLanguageInput"
                           Grid.Row="0"
                           Grid.Column="1"
-                          VerticalAlignment="Center"
+                          Margin="0,5,0,0"
+                          VerticalAlignment="Top"
                           ItemsSource="{Binding Languages}"
                           SelectedValuePath="Code"
                           SelectedValue="{Binding ScreenshotTargetLanguage, Mode=OneWay}"
@@ -195,7 +207,8 @@
                 <TextBox x:Name="ScreenshotTranslationOutput"
                          Grid.Row="0"
                          Grid.Column="3"
-                         VerticalAlignment="Center"
+                         Margin="0,5,0,0"
+                         VerticalAlignment="Top"
                          Text="{Binding ScreenshotTranslation, Mode=OneWay}"
                          ToolTip="{Binding ScreenshotTranslation, Mode=OneWay}"
                          Style="{StaticResource OverlayResultTextBoxStyle}"
@@ -222,20 +235,30 @@
                                AutomationProperties.LiveSetting="Polite" />
                 </Grid>
 
-                <Button Grid.Row="0"
+                <Button x:Name="RetryScreenshotButton"
+                        Grid.Row="0"
                         Grid.Column="5"
-                        VerticalAlignment="Center"
-                        Content="重试"
+                        Margin="0,5,0,0"
+                        VerticalAlignment="Top"
                         Command="{Binding RetryScreenshotCommand}"
                         Style="{StaticResource OverlayCompactButtonStyle}"
-                        AutomationProperties.Name="重试截图翻译" />
-                <Button Grid.Row="0"
+                        AutomationProperties.Name="重试截图翻译">
+                    <TextBlock FontWeight="SemiBold"
+                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                               Text="重试" />
+                </Button>
+                <Button x:Name="CopyScreenshotButton"
+                        Grid.Row="0"
                         Grid.Column="7"
-                        VerticalAlignment="Center"
-                        Content="复制"
+                        Margin="0,5,0,0"
+                        VerticalAlignment="Top"
                         Command="{Binding CopyScreenshotCommand}"
                         Style="{StaticResource OverlayAccentButtonStyle}"
-                        AutomationProperties.Name="复制截图译文" />
+                        AutomationProperties.Name="复制截图译文">
+                    <TextBlock Foreground="#FFFFFF"
+                               FontWeight="SemiBold"
+                               Text="复制" />
+                </Button>
             </Grid>
 
             <Border Grid.Row="1"
@@ -244,7 +267,7 @@
 
             <Grid Grid.Row="2">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="52" />
+                    <RowDefinition MinHeight="52" Height="Auto" />
                     <RowDefinition Height="24" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
@@ -272,7 +295,8 @@
                 <TextBox x:Name="ReplyInput"
                          Grid.Row="0"
                          Grid.Column="1"
-                         VerticalAlignment="Center"
+                         Margin="0,10,0,0"
+                         VerticalAlignment="Top"
                          Text="{Binding ReplyInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource OverlayCompactInputStyle}"
                          PreviewKeyDown="OnReplyInputPreviewKeyDown"
@@ -280,7 +304,8 @@
 
                 <ComboBox Grid.Row="0"
                           Grid.Column="3"
-                          VerticalAlignment="Center"
+                          Margin="0,10,0,0"
+                          VerticalAlignment="Top"
                           ItemsSource="{Binding Languages}"
                           SelectedValuePath="Code"
                           SelectedValue="{Binding ReplyTargetLanguage, Mode=TwoWay}"
@@ -289,16 +314,21 @@
 
                 <Button Grid.Row="0"
                         Grid.Column="5"
-                        VerticalAlignment="Center"
-                        Content="翻译"
+                        Margin="0,10,0,0"
+                        VerticalAlignment="Top"
                         Command="{Binding TranslateReplyCommand}"
                         Style="{StaticResource OverlayCompactButtonStyle}"
-                        AutomationProperties.Name="翻译快捷回复" />
+                        AutomationProperties.Name="翻译快捷回复">
+                    <TextBlock FontWeight="SemiBold"
+                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                               Text="翻译" />
+                </Button>
 
                 <TextBox x:Name="ReplyTranslationOutput"
                          Grid.Row="0"
                          Grid.Column="7"
-                         VerticalAlignment="Center"
+                         Margin="0,10,0,0"
+                         VerticalAlignment="Top"
                          Text="{Binding ReplyTranslation, Mode=OneWay}"
                          ToolTip="{Binding ReplyTranslation, Mode=OneWay}"
                          Style="{StaticResource OverlayResultTextBoxStyle}"
@@ -313,11 +343,15 @@
 
                 <Button Grid.Row="0"
                         Grid.Column="9"
-                        VerticalAlignment="Center"
-                        Content="复制"
+                        Margin="0,10,0,0"
+                        VerticalAlignment="Top"
                         Command="{Binding CopyReplyCommand}"
                         Style="{StaticResource OverlayAccentButtonStyle}"
-                        AutomationProperties.Name="复制回复译文" />
+                        AutomationProperties.Name="复制回复译文">
+                    <TextBlock Foreground="#FFFFFF"
+                               FontWeight="SemiBold"
+                               Text="复制" />
+                </Button>
 
                 <TextBlock Grid.Row="1"
                            Grid.Column="1"
