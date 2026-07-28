@@ -28,7 +28,7 @@ public sealed class OverlayColorsTests
             var selectedText = Assert.IsType<SolidColorBrush>(resources["Overlay.Brush.TextPrimary"]);
 
             Assert.Equal(WpfColor.FromRgb(0x30, 0x22, 0x50), selectedBackground.Color);
-            Assert.Equal(WpfColor.FromRgb(0xF4, 0xF2, 0xF8), selectedText.Color);
+            Assert.Equal(WpfColor.FromRgb(0xFF, 0xFF, 0xFF), selectedText.Color);
             var contrastRatio = ContrastRatio(selectedText.Color, selectedBackground.Color);
             Assert.True(
                 contrastRatio >= 7d,

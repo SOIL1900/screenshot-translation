@@ -3,8 +3,8 @@
     <Color x:Key="Overlay.Color.Panel">#181821</Color>
     <Color x:Key="Overlay.Color.Input">#24242F</Color>
     <Color x:Key="Overlay.Color.InputPressed">#2E2E3C</Color>
-    <Color x:Key="Overlay.Color.TextPrimary">#F4F2F8</Color>
-    <Color x:Key="Overlay.Color.TextSecondary">#B8B6C3</Color>
+    <Color x:Key="Overlay.Color.TextPrimary">#FFFFFF</Color>
+    <Color x:Key="Overlay.Color.TextSecondary">#D5D2DE</Color>
     <Color x:Key="Overlay.Color.Accent">#7C3AED</Color>
     <Color x:Key="Overlay.Color.AccentHover">#6D28D9</Color>
     <Color x:Key="Overlay.Color.PrimaryTint">#302250</Color>

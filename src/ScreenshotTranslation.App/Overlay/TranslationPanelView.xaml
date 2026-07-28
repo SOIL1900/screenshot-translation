@@ -9,6 +9,7 @@
                BasedOn="{StaticResource {x:Type Button}}">
             <Setter Property="MinWidth" Value="48" />
             <Setter Property="MinHeight" Value="32" />
+            <Setter Property="Height" Value="32" />
             <Setter Property="Padding" Value="10,5" />
             <Setter Property="FontSize" Value="12.5" />
             <Setter Property="Background" Value="{DynamicResource Overlay.Brush.Input}" />
@@ -21,7 +22,7 @@
                BasedOn="{StaticResource OverlayCompactButtonStyle}">
             <Setter Property="Background" Value="{DynamicResource Overlay.Brush.Accent}" />
             <Setter Property="BorderBrush" Value="{DynamicResource Overlay.Brush.Accent}" />
-            <Setter Property="Foreground" Value="{DynamicResource Overlay.Brush.OnAccent}" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="{DynamicResource Overlay.Brush.AccentHover}" />
@@ -37,11 +38,22 @@
                TargetType="{x:Type ComboBox}"
                BasedOn="{StaticResource {x:Type ComboBox}}">
             <Setter Property="MinHeight" Value="32" />
+            <Setter Property="Height" Value="32" />
             <Setter Property="Padding" Value="9,4" />
             <Setter Property="FontSize" Value="12.5" />
             <Setter Property="Background" Value="{DynamicResource Overlay.Brush.Input}" />
             <Setter Property="Foreground" Value="{DynamicResource Overlay.Brush.TextPrimary}" />
             <Setter Property="BorderBrush" Value="{DynamicResource Overlay.Brush.Border}" />
+            <Setter Property="ItemTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Foreground="#FFFFFF"
+                                   Text="{Binding DisplayName}"
+                                   TextTrimming="CharacterEllipsis"
+                                   TextWrapping="NoWrap" />
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
             <Setter Property="ItemContainerStyle">
                 <Setter.Value>
                     <Style TargetType="{x:Type ComboBoxItem}">
@@ -54,7 +66,8 @@
                                 <ControlTemplate TargetType="{x:Type ComboBoxItem}">
                                     <Border x:Name="ItemBorder"
                                             Padding="{TemplateBinding Padding}"
-                                            Background="{TemplateBinding Background}">
+                                            Background="{TemplateBinding Background}"
+                                            TextElement.Foreground="#FFFFFF">
                                         <ContentPresenter VerticalAlignment="Center"
                                                           ContentSource="Content"
                                                           TextElement.Foreground="{TemplateBinding Foreground}" />
@@ -83,6 +96,7 @@
                TargetType="{x:Type TextBox}"
                BasedOn="{StaticResource {x:Type TextBox}}">
             <Setter Property="MinHeight" Value="32" />
+            <Setter Property="Height" Value="32" />
             <Setter Property="Padding" Value="10,5" />
             <Setter Property="Background" Value="{DynamicResource Overlay.Brush.Input}" />
             <Setter Property="Foreground" Value="{DynamicResource Overlay.Brush.TextPrimary}" />
@@ -94,6 +108,7 @@
                TargetType="{x:Type TextBox}"
                BasedOn="{StaticResource {x:Type TextBox}}">
             <Setter Property="MinHeight" Value="32" />
+            <Setter Property="Height" Value="32" />
             <Setter Property="Padding" Value="10,5" />
             <Setter Property="Background" Value="{DynamicResource Overlay.Brush.Input}" />
             <Setter Property="BorderThickness" Value="1" />
@@ -101,7 +116,7 @@
             <Setter Property="IsReadOnly" Value="True" />
             <Setter Property="TextWrapping" Value="NoWrap" />
             <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
-            <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />
+            <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
         </Style>
 
         <Style x:Key="OverlayBandTitleStyle" TargetType="{x:Type TextBlock}">
@@ -139,6 +154,10 @@
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="42" />
+                    <RowDefinition Height="23" />
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="92" />
                     <ColumnDefinition Width="120" />
@@ -150,7 +169,9 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <StackPanel Grid.RowSpan="2"
+                            Grid.Column="0"
+                            VerticalAlignment="Center">
                     <TextBlock Text="截图翻译" Style="{StaticResource OverlayBandTitleStyle}" />
                     <TextBlock Margin="0,4,0,0"
                                Style="{StaticResource OverlayMetaTextStyle}"
@@ -161,52 +182,55 @@
                 </StackPanel>
 
                 <ComboBox x:Name="ScreenshotTargetLanguageInput"
+                          Grid.Row="0"
                           Grid.Column="1"
                           VerticalAlignment="Center"
                           ItemsSource="{Binding Languages}"
-                          DisplayMemberPath="DisplayName"
                           SelectedValuePath="Code"
                           SelectedValue="{Binding ScreenshotTargetLanguage, Mode=OneWay}"
                           SelectionChanged="OnScreenshotTargetLanguageChanged"
                           Style="{StaticResource OverlayCompactComboBoxStyle}"
                           AutomationProperties.Name="截图翻译目标语言" />
 
-                <Grid Grid.Column="3" VerticalAlignment="Center">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="34" />
-                        <RowDefinition Height="19" />
-                    </Grid.RowDefinitions>
-                    <TextBox Text="{Binding ScreenshotTranslation, Mode=OneWay}"
-                             Style="{StaticResource OverlayResultTextBoxStyle}"
-                             AutomationProperties.Name="截图译文" />
-                    <Grid Grid.Row="1" Margin="2,2,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <ProgressBar Grid.Column="0"
-                                     Width="38"
-                                     Height="3"
-                                     Margin="0,0,7,0"
-                                     VerticalAlignment="Center"
-                                     IsIndeterminate="True"
-                                     Visibility="{Binding IsScreenshotLoadingVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                     AutomationProperties.Name="截图翻译进行中" />
-                        <TextBlock Grid.Column="1"
-                                   VerticalAlignment="Center"
-                                   Text="{Binding StatusMessage}"
-                                   Style="{StaticResource OverlayMetaTextStyle}"
-                                   AutomationProperties.LiveSetting="Polite" />
-                    </Grid>
+                <TextBox x:Name="ScreenshotTranslationOutput"
+                         Grid.Row="0"
+                         Grid.Column="3"
+                         VerticalAlignment="Center"
+                         Text="{Binding ScreenshotTranslation, Mode=OneWay}"
+                         ToolTip="{Binding ScreenshotTranslation, Mode=OneWay}"
+                         Style="{StaticResource OverlayResultTextBoxStyle}"
+                         AutomationProperties.Name="截图译文" />
+                <Grid Grid.Row="1"
+                      Grid.Column="3"
+                      Margin="2,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ProgressBar Grid.Column="0"
+                                 Width="38"
+                                 Height="3"
+                                 Margin="0,0,7,0"
+                                 VerticalAlignment="Center"
+                                 IsIndeterminate="True"
+                                 Visibility="{Binding IsScreenshotLoadingVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                 AutomationProperties.Name="截图翻译进行中" />
+                    <TextBlock Grid.Column="1"
+                               VerticalAlignment="Center"
+                               Text="{Binding StatusMessage}"
+                               Style="{StaticResource OverlayMetaTextStyle}"
+                               AutomationProperties.LiveSetting="Polite" />
                 </Grid>
 
-                <Button Grid.Column="5"
+                <Button Grid.Row="0"
+                        Grid.Column="5"
                         VerticalAlignment="Center"
                         Content="重试"
                         Command="{Binding RetryScreenshotCommand}"
                         Style="{StaticResource OverlayCompactButtonStyle}"
                         AutomationProperties.Name="重试截图翻译" />
-                <Button Grid.Column="7"
+                <Button Grid.Row="0"
+                        Grid.Column="7"
                         VerticalAlignment="Center"
                         Content="复制"
                         Command="{Binding CopyScreenshotCommand}"
@@ -219,6 +243,10 @@
                     Background="{DynamicResource Overlay.Brush.Border}" />
 
             <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="52" />
+                    <RowDefinition Height="24" />
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="92" />
                     <ColumnDefinition Width="1.08*" />
@@ -232,7 +260,9 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <StackPanel Grid.RowSpan="2"
+                            Grid.Column="0"
+                            VerticalAlignment="Center">
                     <TextBlock Text="快捷回复" Style="{StaticResource OverlayBandTitleStyle}" />
                     <TextBlock Margin="0,4,0,0"
                                Text="Enter 翻译"
@@ -240,6 +270,7 @@
                 </StackPanel>
 
                 <TextBox x:Name="ReplyInput"
+                         Grid.Row="0"
                          Grid.Column="1"
                          VerticalAlignment="Center"
                          Text="{Binding ReplyInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -247,50 +278,51 @@
                          PreviewKeyDown="OnReplyInputPreviewKeyDown"
                          AutomationProperties.Name="快捷回复输入" />
 
-                <ComboBox Grid.Column="3"
+                <ComboBox Grid.Row="0"
+                          Grid.Column="3"
                           VerticalAlignment="Center"
                           ItemsSource="{Binding Languages}"
-                          DisplayMemberPath="DisplayName"
                           SelectedValuePath="Code"
                           SelectedValue="{Binding ReplyTargetLanguage, Mode=TwoWay}"
                           Style="{StaticResource OverlayCompactComboBoxStyle}"
                           AutomationProperties.Name="回复目标语言" />
 
-                <Button Grid.Column="5"
+                <Button Grid.Row="0"
+                        Grid.Column="5"
                         VerticalAlignment="Center"
                         Content="翻译"
                         Command="{Binding TranslateReplyCommand}"
                         Style="{StaticResource OverlayCompactButtonStyle}"
                         AutomationProperties.Name="翻译快捷回复" />
 
-                <Grid Grid.Column="7"
-                      Margin="0,6,0,0"
-                      VerticalAlignment="Top">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="34" />
-                        <RowDefinition Height="19" />
-                    </Grid.RowDefinitions>
-                    <TextBox Text="{Binding ReplyTranslation, Mode=OneWay}"
-                             Style="{StaticResource OverlayResultTextBoxStyle}"
-                             AutomationProperties.Name="回复译文" />
-                    <TextBlock Grid.Row="1"
-                               Margin="2,2,0,0"
-                               VerticalAlignment="Center"
-                               Text="{Binding ReplyStatusMessage}"
-                               Style="{StaticResource OverlayMetaTextStyle}"
-                               AutomationProperties.LiveSetting="Polite" />
-                </Grid>
+                <TextBox x:Name="ReplyTranslationOutput"
+                         Grid.Row="0"
+                         Grid.Column="7"
+                         VerticalAlignment="Center"
+                         Text="{Binding ReplyTranslation, Mode=OneWay}"
+                         ToolTip="{Binding ReplyTranslation, Mode=OneWay}"
+                         Style="{StaticResource OverlayResultTextBoxStyle}"
+                         AutomationProperties.Name="回复译文" />
+                <TextBlock Grid.Row="1"
+                           Grid.Column="7"
+                           Margin="2,0,0,0"
+                           VerticalAlignment="Center"
+                           Text="{Binding ReplyStatusMessage}"
+                           Style="{StaticResource OverlayMetaTextStyle}"
+                           AutomationProperties.LiveSetting="Polite" />
 
-                <Button Grid.Column="9"
+                <Button Grid.Row="0"
+                        Grid.Column="9"
                         VerticalAlignment="Center"
                         Content="复制"
                         Command="{Binding CopyReplyCommand}"
                         Style="{StaticResource OverlayAccentButtonStyle}"
                         AutomationProperties.Name="复制回复译文" />
 
-                <TextBlock Grid.Column="1"
-                           Grid.ColumnSpan="9"
-                           VerticalAlignment="Bottom"
+                <TextBlock Grid.Row="1"
+                           Grid.Column="1"
+                           Grid.ColumnSpan="5"
+                           VerticalAlignment="Center"
                            Foreground="{DynamicResource Overlay.Brush.ErrorText}"
                            FontSize="11.5"
                            Text="{Binding ClipboardError}"

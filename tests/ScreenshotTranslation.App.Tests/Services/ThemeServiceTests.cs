@@ -1,9 +1,13 @@
 using System.Windows;
 using ScreenshotTranslation.App.Services;
+using ScreenshotTranslation.App.Overlay;
 using ScreenshotTranslation.Core.Configuration;
+using WpfButton = System.Windows.Controls.Button;
 using WpfComboBox = System.Windows.Controls.ComboBox;
+using WpfScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility;
 using WpfTextBlock = System.Windows.Controls.TextBlock;
 using WpfTextSearch = System.Windows.Controls.TextSearch;
+using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
 namespace ScreenshotTranslation.App.Tests.Services;
 
@@ -65,6 +69,39 @@ public sealed class ThemeServiceTests
             Assert.Equal(
                 nonColorDictionaries,
                 mergedDictionaries.Where(dictionary => !ThemeService.IsColorDictionarySource(dictionary.Source)));
+
+            var primaryButtonStyle = Assert.IsType<Style>(
+                application.FindResource("PrimaryButtonStyle"));
+            var primaryButton = new WpfButton { Style = primaryButtonStyle };
+            var primaryForeground = Assert.IsType<WpfSolidColorBrush>(primaryButton.Foreground);
+            Assert.Equal(System.Windows.Media.Colors.White, primaryForeground.Color);
+
+            mergedDictionaries.Add(Assert.IsType<ResourceDictionary>(
+                System.Windows.Application.LoadComponent(
+                    new Uri(
+                        "/ScreenshotTranslation;component/Overlay/OverlayColors.xaml",
+                        UriKind.Relative))));
+            var panel = new TranslationPanelView { Width = 920, Height = 166 };
+            panel.Measure(new System.Windows.Size(920, 166));
+            panel.Arrange(new System.Windows.Rect(0, 0, 920, 166));
+            panel.UpdateLayout();
+
+            var replyInputTop = panel.ReplyInput.TranslatePoint(new System.Windows.Point(), panel).Y;
+            var replyOutputTop = panel.ReplyTranslationOutput.TranslatePoint(new System.Windows.Point(), panel).Y;
+            Assert.Equal(replyInputTop, replyOutputTop, precision: 3);
+            Assert.Equal(32, panel.ReplyInput.ActualHeight, precision: 3);
+            Assert.Equal(32, panel.ReplyTranslationOutput.ActualHeight, precision: 3);
+            Assert.Equal(
+                WpfScrollBarVisibility.Disabled,
+                panel.ScreenshotTranslationOutput.HorizontalScrollBarVisibility);
+            Assert.Equal(
+                WpfScrollBarVisibility.Disabled,
+                panel.ReplyTranslationOutput.HorizontalScrollBarVisibility);
+            var languageItemText = Assert.IsType<WpfTextBlock>(
+                panel.ScreenshotTargetLanguageInput.ItemTemplate.LoadContent());
+            var languageItemForeground = Assert.IsType<WpfSolidColorBrush>(
+                languageItemText.Foreground);
+            Assert.Equal(System.Windows.Media.Colors.White, languageItemForeground.Color);
         });
     }
 
