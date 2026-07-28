@@ -165,27 +165,14 @@ public partial class CaptureOverlayWindow : Window
         }
 
         var coordinateMapper = _coordinateMapperState.Current;
-        var screenDip = coordinateMapper.ToDip(_viewModel.ScreenBounds);
-        var selectionDip = coordinateMapper.ToDip(selection);
-        var panelWidthDip = Math.Min(
-            screenDip.Width,
-            Math.Clamp(
-                selectionDip.Width,
-                OverlayViewModel.PanelMinimumWidth,
-                OverlayViewModel.PanelMaximumWidth));
-        var panelHeightDip = Math.Min(screenDip.Height, OverlayViewModel.PanelHeight);
-        ResultPanel.Width = panelWidthDip;
-        ResultPanel.Height = panelHeightDip;
-
-        var panelWidthPhysical = coordinateMapper.DipLengthToPhysicalX(panelWidthDip);
-        var panelHeightPhysical = coordinateMapper.DipLengthToPhysicalY(panelHeightDip);
-        var panelBounds = ResultPanelPlacement.Place(
+        var layout = OverlayPanelLayout.Calculate(
             selection,
-            panelWidthPhysical,
-            panelHeightPhysical,
             _frame.Monitor.FrameLocalWorkArea,
-            OverlayViewModel.PanelGap);
-        var panelBoundsDip = coordinateMapper.ToDip(panelBounds);
+            coordinateMapper);
+        ResultPanel.Width = layout.WidthDip;
+        ResultPanel.Height = layout.HeightDip;
+
+        var panelBoundsDip = coordinateMapper.ToDip(layout.PhysicalBounds);
         Canvas.SetLeft(ResultPanel, panelBoundsDip.X);
         Canvas.SetTop(ResultPanel, panelBoundsDip.Y);
         ResultPanel.Visibility = Visibility.Visible;
