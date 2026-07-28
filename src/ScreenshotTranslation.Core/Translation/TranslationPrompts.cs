@@ -19,9 +19,9 @@ public static class TranslationPrompts
             Translate every legible text line in the screenshot into {{targetLanguageCode}}.
             Detect the main source language. Preserve usernames, message order, code structure, and line breaks where practical.
             Interpret abbreviations, slang, and colloquial language naturally, as is common in casual and game-chat contexts.
-            Return no explanations, analysis, Markdown, or unrelated content.
-            Return exactly one JSON object with this shape:
-            {"status":"ok","sourceLanguage":"English name of detected language","sourceLanguageCode":"BCP-47 language code","translation":"translated chat"}
+            Do not wrap the JSON in markdown code fences. Return no explanations, analysis, or unrelated content.
+            Return one JSON object with exactly this shape:
+            {"status":"ok","sourceLanguage":"English name of detected language","sourceLanguageCode":"BCP-47 language code","translation":"<full translated text>"}
             If any letters, words, code, labels, or messages are legible, status must be "ok".
             Use "no_text" only when the image truly contains no legible text after careful inspection. In that case return exactly:
             {"status":"no_text","sourceLanguage":"","sourceLanguageCode":"","translation":""}
