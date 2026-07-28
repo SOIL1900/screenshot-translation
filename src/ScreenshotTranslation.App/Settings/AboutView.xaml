@@ -4,49 +4,92 @@
              AutomationProperties.Name="关于截图翻译">
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Margin="28,24,28,32">
+        <StackPanel Margin="30,26,30,32">
             <TextBlock Text="关于" Style="{StaticResource PageTitleTextStyle}" />
-            <TextBlock Margin="0,0,0,24"
-                       Text="截图翻译是一款面向游戏聊天场景的 Windows 桌面工具。"
+            <TextBlock Margin="0,0,0,20"
+                       Text="一款专注、轻量的 Windows 截图翻译工具。"
                        Style="{StaticResource SecondaryTextStyle}" />
 
             <Border Style="{StaticResource SettingsCardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="截图翻译" Style="{StaticResource SectionHeaderTextStyle}" />
-                    <Grid Margin="0,0,0,16">
+                    <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="58" />
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="版本" Style="{StaticResource SecondaryTextStyle}" />
-                        <TextBlock Grid.Column="1" Text="{Binding ApplicationVersion}" />
+                        <Border Width="46"
+                                Height="46"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                                Background="{DynamicResource Brush.PrimaryTint}"
+                                CornerRadius="14">
+                            <Path Width="23"
+                                  Height="23"
+                                  Data="{StaticResource Icon.General}"
+                                  Stretch="Uniform"
+                                  Stroke="{DynamicResource Brush.Primary}"
+                                  StrokeThickness="1.8" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock FontSize="17"
+                                       FontWeight="SemiBold"
+                                       Text="截图翻译" />
+                            <TextBlock Margin="0,4,0,0"
+                                       Text="为游戏聊天和跨语言沟通而设计"
+                                       Style="{StaticResource SecondaryTextStyle}" />
+                        </StackPanel>
+                        <Border Grid.Column="2"
+                                Padding="10,5"
+                                VerticalAlignment="Center"
+                                Background="{DynamicResource Brush.PrimaryTint}"
+                                CornerRadius="10">
+                            <TextBlock Foreground="{DynamicResource Brush.Primary}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Text="{Binding ApplicationVersion, Mode=OneWay, StringFormat=v{0}}" />
+                        </Border>
                     </Grid>
-                    <Grid Margin="0,0,0,16">
+
+                    <Border Style="{StaticResource SettingsDividerStyle}" />
+
+                    <Grid Margin="0,0,0,14">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="140" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="许可证" Style="{StaticResource SecondaryTextStyle}" />
-                        <TextBlock Grid.Column="1" Text="MIT License" />
+                        <TextBlock Grid.Column="0" Text="软件许可证" Style="{StaticResource SecondaryTextStyle}" />
+                        <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="MIT License" />
                     </Grid>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="140" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="开源说明" Style="{StaticResource SecondaryTextStyle}" />
                         <TextBlock Grid.Column="1"
-                                   Text="本项目采用 MIT License 开源。依赖信息可在源代码的项目文件中查阅。" />
+                                   LineHeight="20"
+                                   Text="本项目采用 MIT License 开源，依赖信息可在源代码的项目文件中查阅。" />
                     </Grid>
                 </StackPanel>
             </Border>
 
             <Border Margin="0,16,0,0" Style="{StaticResource SettingsCardBorderStyle}">
-                <StackPanel>
-                    <TextBlock Text="隐私说明" Style="{StaticResource SectionHeaderTextStyle}" />
-                    <TextBlock Text="API Key 以明文保存在当前用户的本机设置文件中。应用不会将截图、输入内容或译文写入诊断日志，也不包含遥测。"
-                               Style="{StaticResource SecondaryTextStyle}" />
-                </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="4" />
+                        <ColumnDefinition Width="18" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="4"
+                            Background="{DynamicResource Brush.Primary}"
+                            CornerRadius="2" />
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="隐私说明" Style="{StaticResource SectionHeaderTextStyle}" />
+                        <TextBlock Text="API Key 以明文保存在当前用户的本机设置文件中。应用不会将截图、输入内容或译文写入诊断日志，也不包含遥测。"
+                                   Style="{StaticResource SecondaryTextStyle}" />
+                    </StackPanel>
+                </Grid>
             </Border>
         </StackPanel>
     </ScrollViewer>

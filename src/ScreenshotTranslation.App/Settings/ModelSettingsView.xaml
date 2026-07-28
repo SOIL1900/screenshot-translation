@@ -5,106 +5,190 @@
              AutomationProperties.Name="模型设置">
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Margin="28,24,28,32">
-            <TextBlock Text="模型" Style="{StaticResource PageTitleTextStyle}" />
-            <TextBlock Margin="0,0,0,24"
-                       Text="配置当前使用的 OpenAI 兼容多模态模型。"
+        <StackPanel Margin="30,26,30,32">
+            <TextBlock Text="模型设置" Style="{StaticResource PageTitleTextStyle}" />
+            <TextBlock Margin="0,0,0,20"
+                       Text="配置 OpenAI 兼容的多模态模型与请求参数。"
                        Style="{StaticResource SecondaryTextStyle}" />
 
             <Border Style="{StaticResource SettingsCardBorderStyle}">
                 <StackPanel>
                     <TextBlock Text="连接信息" Style="{StaticResource SectionHeaderTextStyle}" />
 
-                    <StackPanel Margin="0,0,0,12">
-                        <Label Target="{Binding ElementName=BaseUrlInput}" Content="API 服务地址" />
-                        <TextBox x:Name="BaseUrlInput"
-                                 Tag="Model.BaseUrl"
-                                 Text="{Binding BaseUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 AutomationProperties.Name="API 服务地址"
-                                 LostKeyboardFocus="OnFieldLostKeyboardFocus" />
-                        <TextBlock Text="{Binding Errors[Model.BaseUrl]}"
-                                   Style="{StaticResource InlineValidationTextStyle}" />
-                    </StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="190" />
+                            <ColumnDefinition Width="24" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <Label Target="{Binding ElementName=BaseUrlInput}"
+                                   Padding="0"
+                                   Content="API 服务地址" />
+                            <TextBlock Text="OpenAI 兼容接口的基础地址。"
+                                       Style="{StaticResource SettingsFieldDescriptionTextStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBox x:Name="BaseUrlInput"
+                                     Tag="Model.BaseUrl"
+                                     Text="{Binding BaseUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     AutomationProperties.Name="API 服务地址"
+                                     LostKeyboardFocus="OnFieldLostKeyboardFocus" />
+                            <TextBlock Text="{Binding Errors[Model.BaseUrl]}"
+                                       Style="{StaticResource InlineValidationTextStyle}" />
+                        </StackPanel>
+                    </Grid>
 
-                    <StackPanel Margin="0,0,0,12">
-                        <Label Target="{Binding ElementName=ApiKeyInput}" Content="API Key（明文）" />
-                        <TextBox x:Name="ApiKeyInput"
-                                 Tag="Model.ApiKey"
-                                 Text="{Binding ApiKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 AutomationProperties.Name="API Key 明文输入框"
-                                 AutomationProperties.HelpText="API Key 始终可见，并以明文保存在本机设置文件中。"
-                                 LostKeyboardFocus="OnFieldLostKeyboardFocus" />
-                        <TextBlock Text="{Binding Errors[Model.ApiKey]}"
-                                   Style="{StaticResource InlineValidationTextStyle}" />
-                    </StackPanel>
+                    <Border Style="{StaticResource SettingsDividerStyle}" />
 
-                    <StackPanel Margin="0,0,0,16">
-                        <Label Target="{Binding ElementName=ModelNameInput}" Content="模型名称" />
-                        <TextBox x:Name="ModelNameInput"
-                                 Tag="Model.ModelName"
-                                 Text="{Binding ModelName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 AutomationProperties.Name="模型名称"
-                                 LostKeyboardFocus="OnFieldLostKeyboardFocus" />
-                        <TextBlock Text="{Binding Errors[Model.ModelName]}"
-                                   Style="{StaticResource InlineValidationTextStyle}" />
-                    </StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="190" />
+                            <ColumnDefinition Width="24" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <Label Target="{Binding ElementName=ApiKeyInput}"
+                                   Padding="0"
+                                   Content="API Key（明文）" />
+                            <TextBlock Text="仅保存在当前用户的本机设置中。"
+                                       Style="{StaticResource SettingsFieldDescriptionTextStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBox x:Name="ApiKeyInput"
+                                     Tag="Model.ApiKey"
+                                     Text="{Binding ApiKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     AutomationProperties.Name="API Key 明文输入框"
+                                     AutomationProperties.HelpText="API Key 始终可见，并以明文保存在本机设置文件中。"
+                                     LostKeyboardFocus="OnFieldLostKeyboardFocus" />
+                            <TextBlock Text="{Binding Errors[Model.ApiKey]}"
+                                       Style="{StaticResource InlineValidationTextStyle}" />
+                        </StackPanel>
+                    </Grid>
 
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="测试连接"
-                                Command="{Binding TestConnectionCommand}"
-                                AutomationProperties.Name="测试模型连接" />
-                        <ProgressBar Width="72"
-                                     Height="6"
-                                     Margin="12,0,0,0"
-                                     VerticalAlignment="Center"
-                                     IsIndeterminate="True"
-                                     Visibility="{Binding IsConnectionTestLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                     AutomationProperties.Name="正在测试连接" />
-                    </StackPanel>
+                    <Border Style="{StaticResource SettingsDividerStyle}" />
 
-                    <TextBlock MinHeight="24"
-                               Margin="0,8,0,0"
-                               Text="{Binding ConnectionTestMessage}"
-                               AutomationProperties.LiveSetting="Polite">
-                        <TextBlock.Style>
-                            <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource SecondaryTextStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ConnectionTestState}"
-                                                 Value="{x:Static local:ConnectionTestState.Success}">
-                                        <Setter Property="Foreground" Value="{DynamicResource Brush.SuccessText}" />
-                                        <Setter Property="FontWeight" Value="SemiBold" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding ConnectionTestState}"
-                                                 Value="{x:Static local:ConnectionTestState.Error}">
-                                        <Setter Property="Foreground" Value="{DynamicResource Brush.ErrorText}" />
-                                        <Setter Property="FontWeight" Value="SemiBold" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="190" />
+                            <ColumnDefinition Width="24" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <Label Target="{Binding ElementName=ModelNameInput}"
+                                   Padding="0"
+                                   Content="模型名称" />
+                            <TextBlock Text="填写服务商提供的模型标识。"
+                                       Style="{StaticResource SettingsFieldDescriptionTextStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBox x:Name="ModelNameInput"
+                                     Tag="Model.ModelName"
+                                     Text="{Binding ModelName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     AutomationProperties.Name="模型名称"
+                                     LostKeyboardFocus="OnFieldLostKeyboardFocus" />
+                            <TextBlock Text="{Binding Errors[Model.ModelName]}"
+                                       Style="{StaticResource InlineValidationTextStyle}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Border Style="{StaticResource SettingsDividerStyle}" />
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="190" />
+                            <ColumnDefinition Width="24" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="连接验证" Style="{StaticResource SettingsFieldTitleTextStyle}" />
+                            <TextBlock Text="保存前确认当前配置可正常访问。"
+                                       Style="{StaticResource SettingsFieldDescriptionTextStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="测试连接"
+                                        Command="{Binding TestConnectionCommand}"
+                                        AutomationProperties.Name="测试模型连接" />
+                                <ProgressBar Width="64"
+                                             Height="4"
+                                             Margin="12,0,0,0"
+                                             VerticalAlignment="Center"
+                                             IsIndeterminate="True"
+                                             Visibility="{Binding IsConnectionTestLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                             AutomationProperties.Name="正在测试连接" />
+                            </StackPanel>
+                            <TextBlock MinHeight="20"
+                                       Margin="0,6,0,0"
+                                       Text="{Binding ConnectionTestMessage}"
+                                       AutomationProperties.LiveSetting="Polite">
+                                <TextBlock.Style>
+                                    <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource SecondaryTextStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ConnectionTestState}"
+                                                         Value="{x:Static local:ConnectionTestState.Success}">
+                                                <Setter Property="Foreground" Value="{DynamicResource Brush.SuccessText}" />
+                                                <Setter Property="FontWeight" Value="SemiBold" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding ConnectionTestState}"
+                                                         Value="{x:Static local:ConnectionTestState.Error}">
+                                                <Setter Property="Foreground" Value="{DynamicResource Brush.ErrorText}" />
+                                                <Setter Property="FontWeight" Value="SemiBold" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Grid>
                 </StackPanel>
             </Border>
 
             <Border Margin="0,16,0,0" Style="{StaticResource SettingsCardBorderStyle}">
-                <Expander Header="高级参数"
-                          IsExpanded="True"
+                <Expander IsExpanded="True"
                           Foreground="{DynamicResource Brush.TextPrimary}"
                           AutomationProperties.Name="高级参数">
-                    <StackPanel Margin="0,16,0,0">
-                        <CheckBox Margin="0,0,0,12"
-                                  Content="启用思考模式"
-                                  IsChecked="{Binding EnableThinking, Mode=TwoWay}"
-                                  AutomationProperties.Name="启用思考模式" />
-
-                        <Grid Margin="0,0,0,12">
+                    <Expander.Header>
+                        <TextBlock Text="高级参数" Style="{StaticResource SectionHeaderTextStyle}" />
+                    </Expander.Header>
+                    <StackPanel Margin="0,4,0,0">
+                        <Grid>
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="190" />
+                                <ColumnDefinition Width="24" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock Text="思考模式" Style="{StaticResource SettingsFieldTitleTextStyle}" />
+                                <TextBlock Text="允许支持的模型执行扩展推理。"
+                                           Style="{StaticResource SettingsFieldDescriptionTextStyle}" />
+                            </StackPanel>
+                            <CheckBox Grid.Column="2"
+                                      VerticalAlignment="Center"
+                                      Content="启用思考模式"
+                                      IsChecked="{Binding EnableThinking, Mode=TwoWay}"
+                                      AutomationProperties.Name="启用思考模式" />
+                        </Grid>
+
+                        <Border Style="{StaticResource SettingsDividerStyle}" />
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="190" />
+                                <ColumnDefinition Width="24" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="16" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0">
-                                <Label Target="{Binding ElementName=TemperatureInput}" Content="Temperature" />
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock Text="生成参数" Style="{StaticResource SettingsFieldTitleTextStyle}" />
+                                <TextBlock Text="控制回复随机性与输出长度。"
+                                           Style="{StaticResource SettingsFieldDescriptionTextStyle}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <Label Target="{Binding ElementName=TemperatureInput}"
+                                       Padding="0,0,0,5"
+                                       Content="Temperature" />
                                 <TextBox x:Name="TemperatureInput"
                                          Tag="Model.Temperature"
                                          Text="{Binding TemperatureText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -113,8 +197,10 @@
                                 <TextBlock Text="{Binding Errors[Model.Temperature]}"
                                            Style="{StaticResource InlineValidationTextStyle}" />
                             </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <Label Target="{Binding ElementName=MaxTokensInput}" Content="最大输出长度" />
+                            <StackPanel Grid.Column="4">
+                                <Label Target="{Binding ElementName=MaxTokensInput}"
+                                       Padding="0,0,0,5"
+                                       Content="最大输出长度" />
                                 <TextBox x:Name="MaxTokensInput"
                                          Tag="Model.MaxOutputTokens"
                                          Text="{Binding MaxOutputTokensText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -125,28 +211,59 @@
                             </StackPanel>
                         </Grid>
 
-                        <StackPanel Margin="0,0,0,12">
-                            <Label Target="{Binding ElementName=TimeoutInput}" Content="请求超时（秒）" />
-                            <TextBox x:Name="TimeoutInput"
-                                     Tag="Model.RequestTimeoutSeconds"
-                                     Text="{Binding RequestTimeoutSecondsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                     AutomationProperties.Name="请求超时秒数"
-                                     LostKeyboardFocus="OnFieldLostKeyboardFocus" />
-                            <TextBlock Text="{Binding Errors[Model.RequestTimeoutSeconds]}"
-                                       Style="{StaticResource InlineValidationTextStyle}" />
-                        </StackPanel>
+                        <Border Style="{StaticResource SettingsDividerStyle}" />
 
-                        <StackPanel>
-                            <Label Target="{Binding ElementName=ExtraParametersInput}" Content="额外请求参数 JSON" />
-                            <TextBox x:Name="ExtraParametersInput"
-                                     Tag="Model.ExtraParametersJson"
-                                     Style="{StaticResource MultilineTextBoxStyle}"
-                                     Text="{Binding ExtraParametersJson, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                     AutomationProperties.Name="额外请求参数 JSON"
-                                     LostKeyboardFocus="OnFieldLostKeyboardFocus" />
-                            <TextBlock Text="{Binding Errors[Model.ExtraParametersJson]}"
-                                       Style="{StaticResource InlineValidationTextStyle}" />
-                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="190" />
+                                <ColumnDefinition Width="24" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <Label Target="{Binding ElementName=TimeoutInput}"
+                                       Padding="0"
+                                       Content="请求超时" />
+                                <TextBlock Text="等待模型响应的最长时间（秒）。"
+                                           Style="{StaticResource SettingsFieldDescriptionTextStyle}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBox x:Name="TimeoutInput"
+                                         Tag="Model.RequestTimeoutSeconds"
+                                         Text="{Binding RequestTimeoutSecondsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         AutomationProperties.Name="请求超时秒数"
+                                         LostKeyboardFocus="OnFieldLostKeyboardFocus" />
+                                <TextBlock Text="{Binding Errors[Model.RequestTimeoutSeconds]}"
+                                           Style="{StaticResource InlineValidationTextStyle}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Style="{StaticResource SettingsDividerStyle}" />
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="190" />
+                                <ColumnDefinition Width="24" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" VerticalAlignment="Top">
+                                <Label Target="{Binding ElementName=ExtraParametersInput}"
+                                       Padding="0"
+                                       Content="额外请求参数" />
+                                <TextBlock Text="以 JSON 对象传递服务商专用参数。"
+                                           Style="{StaticResource SettingsFieldDescriptionTextStyle}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBox x:Name="ExtraParametersInput"
+                                         MinHeight="88"
+                                         Tag="Model.ExtraParametersJson"
+                                         Style="{StaticResource MultilineTextBoxStyle}"
+                                         Text="{Binding ExtraParametersJson, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         AutomationProperties.Name="额外请求参数 JSON"
+                                         LostKeyboardFocus="OnFieldLostKeyboardFocus" />
+                                <TextBlock Text="{Binding Errors[Model.ExtraParametersJson]}"
+                                           Style="{StaticResource InlineValidationTextStyle}" />
+                            </StackPanel>
+                        </Grid>
                     </StackPanel>
                 </Expander>
             </Border>

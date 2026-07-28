@@ -1,17 +1,17 @@
 <UserControl x:Class="ScreenshotTranslation.App.Settings.HotkeyRecorder"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             MinHeight="36"
+             MinHeight="34"
              Focusable="True"
              IsTabStop="True"
              AutomationProperties.Name="截图快捷键录制器"
              AutomationProperties.HelpText="聚焦后，同时按下修饰键和一个非修饰键来录制快捷键。"
              PreviewKeyDown="OnPreviewKeyDown"
              PreviewMouseLeftButtonDown="OnPreviewMouseLeftButtonDown">
-    <Border Padding="10,7"
+    <Border Padding="11,6"
             Background="{DynamicResource Brush.Surface}"
-            BorderThickness="2"
-            CornerRadius="4">
+            BorderThickness="1"
+            CornerRadius="8">
         <Border.Style>
             <Style TargetType="{x:Type Border}">
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />

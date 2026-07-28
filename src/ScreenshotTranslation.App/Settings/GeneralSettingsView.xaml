@@ -5,53 +5,108 @@
              AutomationProperties.Name="常规设置">
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Margin="28,24,28,32">
-            <TextBlock Text="常规" Style="{StaticResource PageTitleTextStyle}" />
-            <TextBlock Margin="0,0,0,24"
-                       Text="设置截图入口、默认翻译语言和应用外观。"
+        <StackPanel Margin="30,26,30,32">
+            <TextBlock Text="常规设置" Style="{StaticResource PageTitleTextStyle}" />
+            <TextBlock Margin="0,0,0,20"
+                       Text="配置截图入口、默认翻译语言与应用外观。"
                        Style="{StaticResource SecondaryTextStyle}" />
 
             <Border Style="{StaticResource SettingsCardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="截图与启动" Style="{StaticResource SectionHeaderTextStyle}" />
+                    <TextBlock Text="应用偏好" Style="{StaticResource SectionHeaderTextStyle}" />
 
-                    <StackPanel Margin="0,0,0,16">
-                        <Label Target="{Binding ElementName=CaptureHotkeyInput}" Content="截图快捷键" />
-                        <local:HotkeyRecorder x:Name="CaptureHotkeyInput"
-                                              Tag="General.CaptureHotkey"
-                                              Gesture="{Binding CaptureHotkey, Mode=TwoWay}"
-                                              LostKeyboardFocus="OnFieldLostKeyboardFocus" />
-                        <TextBlock Text="{Binding Errors[General.CaptureHotkey]}"
-                                   Style="{StaticResource InlineValidationTextStyle}" />
-                    </StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="210" />
+                            <ColumnDefinition Width="24" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <Label Target="{Binding ElementName=CaptureHotkeyInput}"
+                                   Padding="0"
+                                   Content="截图快捷键" />
+                            <TextBlock Text="聚焦后直接按下新的组合键。"
+                                       Style="{StaticResource SettingsFieldDescriptionTextStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                            <local:HotkeyRecorder x:Name="CaptureHotkeyInput"
+                                                  Tag="General.CaptureHotkey"
+                                                  Gesture="{Binding CaptureHotkey, Mode=TwoWay}"
+                                                  LostKeyboardFocus="OnFieldLostKeyboardFocus" />
+                            <TextBlock Text="{Binding Errors[General.CaptureHotkey]}"
+                                       Style="{StaticResource InlineValidationTextStyle}" />
+                        </StackPanel>
+                    </Grid>
 
-                    <StackPanel Margin="0,0,0,16">
-                        <Label Target="{Binding ElementName=TargetLanguageInput}" Content="默认截图翻译目标语言" />
+                    <Border Style="{StaticResource SettingsDividerStyle}" />
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="210" />
+                            <ColumnDefinition Width="24" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <Label Target="{Binding ElementName=TargetLanguageInput}"
+                                   Padding="0"
+                                   Content="默认目标语言" />
+                            <TextBlock Text="截图后仍可在结果面板临时切换。"
+                                       Style="{StaticResource SettingsFieldDescriptionTextStyle}" />
+                        </StackPanel>
                         <ComboBox x:Name="TargetLanguageInput"
+                                  Grid.Column="2"
+                                  VerticalAlignment="Center"
                                   ItemsSource="{Binding Languages}"
                                   DisplayMemberPath="DisplayName"
                                   SelectedValuePath="Code"
                                   SelectedValue="{Binding DefaultTargetLanguage, Mode=TwoWay}"
                                   AutomationProperties.Name="默认截图翻译目标语言" />
-                        <TextBlock Text="框选截图后仍可临时切换目标语言。"
-                                   Margin="0,6,0,0"
-                                   Style="{StaticResource SecondaryTextStyle}" />
-                    </StackPanel>
+                    </Grid>
 
-                    <CheckBox Margin="0,0,0,16"
-                              Content="随 Windows 开机启动"
-                              IsChecked="{Binding RunAtStartup, Mode=TwoWay}"
-                              AutomationProperties.Name="随 Windows 开机启动" />
+                    <Border Style="{StaticResource SettingsDividerStyle}" />
 
-                    <StackPanel>
-                        <Label Target="{Binding ElementName=ThemeInput}" Content="界面主题" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="210" />
+                            <ColumnDefinition Width="24" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="开机启动" Style="{StaticResource SettingsFieldTitleTextStyle}" />
+                            <TextBlock Text="登录 Windows 后自动在后台运行。"
+                                       Style="{StaticResource SettingsFieldDescriptionTextStyle}" />
+                        </StackPanel>
+                        <CheckBox Grid.Column="2"
+                                  VerticalAlignment="Center"
+                                  Content="随 Windows 开机启动"
+                                  IsChecked="{Binding RunAtStartup, Mode=TwoWay}"
+                                  AutomationProperties.Name="随 Windows 开机启动" />
+                    </Grid>
+
+                    <Border Style="{StaticResource SettingsDividerStyle}" />
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="210" />
+                            <ColumnDefinition Width="24" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <Label Target="{Binding ElementName=ThemeInput}"
+                                   Padding="0"
+                                   Content="界面主题" />
+                            <TextBlock Text="选择适合当前环境的显示模式。"
+                                       Style="{StaticResource SettingsFieldDescriptionTextStyle}" />
+                        </StackPanel>
                         <ComboBox x:Name="ThemeInput"
+                                  Grid.Column="2"
+                                  VerticalAlignment="Center"
                                   ItemsSource="{Binding ThemeOptions}"
                                   DisplayMemberPath="DisplayName"
                                   SelectedValuePath="Value"
                                   SelectedValue="{Binding Theme, Mode=TwoWay}"
                                   AutomationProperties.Name="界面主题" />
-                    </StackPanel>
+                    </Grid>
                 </StackPanel>
             </Border>
         </StackPanel>

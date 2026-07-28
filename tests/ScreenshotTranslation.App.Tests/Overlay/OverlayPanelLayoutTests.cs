@@ -9,7 +9,7 @@ public sealed class OverlayPanelLayoutTests
     public void Small_high_dpi_work_area_constrains_panel_size_and_physical_placement()
     {
         var mapper = new OverlayCoordinateMapper(144, 144);
-        var workArea = new PixelRect(160, 90, 500, 420);
+        var workArea = new PixelRect(160, 90, 500, 210);
         var selection = new PixelRect(210, 160, 320, 120);
 
         var layout = OverlayPanelLayout.Calculate(selection, workArea, mapper);
