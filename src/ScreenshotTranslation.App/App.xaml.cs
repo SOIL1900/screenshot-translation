@@ -153,9 +153,11 @@ public partial class App : System.Windows.Application
 
         _captureStarting = true;
         nint previousForegroundWindow = nint.Zero;
+        var captureStage = "load_settings";
         try
         {
             var settings = await services.SettingsStore.LoadAsync(CancellationToken.None);
+            captureStage = "validate_settings";
             if (_isExiting)
             {
                 return;
@@ -168,19 +170,28 @@ public partial class App : System.Windows.Application
                 return;
             }
 
+            captureStage = "capture_foreground_window";
             previousForegroundWindow = services.ForegroundWindowService.CaptureForegroundWindow();
+            captureStage = "locate_monitor";
             var monitor = services.MonitorService.GetMonitorUnderCursor();
+            captureStage = "capture_screen";
             var frame = services.ScreenCaptureService.Capture(monitor);
+            captureStage = "create_overlay";
             var overlay = services.CreateOverlayWindow(
                 frame,
                 settings,
                 previousForegroundWindow);
             _overlayWindow = overlay;
             overlay.Closed += OnOverlayClosed;
+            captureStage = "show_overlay";
             overlay.Show();
         }
         catch (Exception exception)
         {
+            if (!exception.Data.Contains("CaptureStage"))
+            {
+                exception.Data["CaptureStage"] = captureStage;
+            }
             if (_overlayWindow is { } overlay)
             {
                 overlay.Closed -= OnOverlayClosed;

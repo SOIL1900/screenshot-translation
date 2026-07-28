@@ -15,6 +15,17 @@ public sealed class FileDiagnosticLog : IDiagnosticLog
         "capture_workflow_failed"
     };
 
+    private static readonly HashSet<string> AllowedCaptureStages = new(StringComparer.Ordinal)
+    {
+        "load_settings",
+        "validate_settings",
+        "capture_foreground_window",
+        "locate_monitor",
+        "capture_screen",
+        "create_overlay",
+        "show_overlay"
+    };
+
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
@@ -46,7 +57,8 @@ public sealed class FileDiagnosticLog : IDiagnosticLog
             Timestamp = _timeProvider.GetUtcNow().UtcDateTime,
             EventName = AllowedEventNames.Contains(eventName) ? eventName : UnrecognizedEventName,
             ExceptionType = exception?.GetType().FullName,
-            HResult = exception?.HResult
+            HResult = exception?.HResult,
+            CaptureStage = GetCaptureStage(exception)
         };
         var line = JsonSerializer.Serialize(entry, SerializerOptions) + Environment.NewLine;
 
@@ -61,4 +73,9 @@ public sealed class FileDiagnosticLog : IDiagnosticLog
             _writeLock.Release();
         }
     }
+
+    private static string? GetCaptureStage(Exception? exception) =>
+        exception?.Data["CaptureStage"] is string stage && AllowedCaptureStages.Contains(stage)
+            ? stage
+            : null;
 }

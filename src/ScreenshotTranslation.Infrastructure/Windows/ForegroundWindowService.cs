@@ -2,11 +2,28 @@ using System.Runtime.InteropServices;
 
 namespace ScreenshotTranslation.Infrastructure.Windows;
 
+internal interface IForegroundWindowNativeMethods
+{
+    nint GetForegroundWindow();
+
+    bool SetForegroundWindow(nint windowHandle);
+}
+
 public sealed class ForegroundWindowService
 {
-    private const int SwRestore = 9;
+    private readonly IForegroundWindowNativeMethods _nativeMethods;
 
-    public nint CaptureForegroundWindow() => GetForegroundWindow();
+    public ForegroundWindowService()
+        : this(Win32ForegroundWindowNativeMethods.Instance)
+    {
+    }
+
+    internal ForegroundWindowService(IForegroundWindowNativeMethods nativeMethods)
+    {
+        _nativeMethods = nativeMethods ?? throw new ArgumentNullException(nameof(nativeMethods));
+    }
+
+    public nint CaptureForegroundWindow() => _nativeMethods.GetForegroundWindow();
 
     public bool RestoreForegroundWindow(nint windowHandle)
     {
@@ -15,18 +32,22 @@ public sealed class ForegroundWindowService
             return false;
         }
 
-        _ = ShowWindow(windowHandle, SwRestore);
-        return SetForegroundWindow(windowHandle);
+        return _nativeMethods.SetForegroundWindow(windowHandle);
     }
 
-    [DllImport("user32.dll")]
-    private static extern nint GetForegroundWindow();
+    private sealed class Win32ForegroundWindowNativeMethods : IForegroundWindowNativeMethods
+    {
+        public static Win32ForegroundWindowNativeMethods Instance { get; } = new();
 
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool ShowWindow(nint windowHandle, int command);
+        public nint GetForegroundWindow() => NativeGetForegroundWindow();
 
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool SetForegroundWindow(nint windowHandle);
+        public bool SetForegroundWindow(nint windowHandle) => NativeSetForegroundWindow(windowHandle);
+
+        [DllImport("user32.dll", EntryPoint = "GetForegroundWindow")]
+        private static extern nint NativeGetForegroundWindow();
+
+        [DllImport("user32.dll", EntryPoint = "SetForegroundWindow")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool NativeSetForegroundWindow(nint windowHandle);
+    }
 }

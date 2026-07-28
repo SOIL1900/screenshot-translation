@@ -86,7 +86,7 @@ dotnet build installer/ScreenshotTranslation.Installer.wixproj -c Release
 
 欢迎提交 Issue 和范围明确的 Pull Request：
 
-1. 请先阅读[已批准的设计规格](docs/superpowers/specs/2026-07-27-screenshot-translation-design.md)和[实施计划](docs/superpowers/plans/2026-07-27-screenshot-translation.md)。
+1. 可以阅读[已批准的设计规格](docs/superpowers/specs/2026-07-27-screenshot-translation-design.md)，这是一开始的设计规划。
 2. Core 逻辑应保持独立于 WPF 和 Win32 适配器，网络与屏幕行为应保持可注入、可测试。
 3. 修改行为时请增加或更新聚焦测试，并根据风险运行相应的构建和测试命令，避免无意义地重复全量验证。
 4. 不要提交 API Key、包含真实数据的设置文件、截图、译文或其他用户隐私数据。

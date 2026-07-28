@@ -2,7 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:ScreenshotTranslation.App.Overlay"
-             Height="360"
+             Height="400"
              AutomationProperties.Name="截图翻译结果面板">
     <Border Padding="16"
             Background="{DynamicResource Overlay.Brush.Panel}"
@@ -55,7 +55,7 @@
                                TextTrimming="CharacterEllipsis"
                                AutomationProperties.Name="检测到的截图源语言">
                         <Run Text="源语言：" />
-                        <Run Text="{Binding DetectedSourceLanguage, TargetNullValue=待检测, FallbackValue=待检测}" />
+                        <Run Text="{Binding DetectedSourceLanguage, Mode=OneWay, TargetNullValue=待检测, FallbackValue=待检测}" />
                     </TextBlock>
                     <Grid Grid.Row="1" Margin="0,4,0,0">
                         <Grid.ColumnDefinitions>
@@ -98,8 +98,9 @@
                              Padding="8"
                              Background="Transparent"
                              BorderThickness="0"
+                             Foreground="{DynamicResource Overlay.Brush.TextPrimary}"
                              IsReadOnly="True"
-                             Text="{Binding ScreenshotTranslation}"
+                             Text="{Binding ScreenshotTranslation, Mode=OneWay}"
                              TextWrapping="Wrap"
                              VerticalScrollBarVisibility="Auto"
                              AutomationProperties.Name="截图译文" />
@@ -173,8 +174,9 @@
                              Padding="8"
                              Background="Transparent"
                              BorderThickness="0"
+                             Foreground="{DynamicResource Overlay.Brush.TextPrimary}"
                              IsReadOnly="True"
-                             Text="{Binding ReplyTranslation}"
+                             Text="{Binding ReplyTranslation, Mode=OneWay}"
                              TextWrapping="Wrap"
                              VerticalScrollBarVisibility="Auto"
                              AutomationProperties.Name="回复译文" />

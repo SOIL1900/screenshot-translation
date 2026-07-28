@@ -56,6 +56,23 @@
         <Setter Property="BorderThickness" Value="2" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource ControlFocusVisualStyle}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TextBox}">
+                    <Border x:Name="TextBoxBorder"
+                            Padding="{TemplateBinding Padding}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8"
+                            SnapsToDevicePixels="True">
+                        <ScrollViewer x:Name="PART_ContentHost"
+                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
         <Style.Triggers>
             <Trigger Property="IsKeyboardFocused" Value="True">
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Focus}" />
@@ -267,7 +284,8 @@
                             SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
-                                          RecognizesAccessKey="True" />
+                                          RecognizesAccessKey="True"
+                                          TextElement.Foreground="{TemplateBinding Foreground}" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
