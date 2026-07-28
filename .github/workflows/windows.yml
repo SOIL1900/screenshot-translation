@@ -1,0 +1,28 @@
+name: windows
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet restore ScreenshotTranslation.sln
+      - run: dotnet build ScreenshotTranslation.sln -c Release --no-restore
+      - run: dotnet test ScreenshotTranslation.sln -c Release --no-build
+      - run: dotnet publish src/ScreenshotTranslation.App/ScreenshotTranslation.App.csproj -c Release -r win-x64 --self-contained true -o artifacts/publish
+      - run: dotnet build installer/ScreenshotTranslation.Installer.wixproj -c Release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ScreenshotTranslation-win-x64
+          path: |
+            artifacts/publish/**
+            installer/bin/x64/Release/**/*.msi

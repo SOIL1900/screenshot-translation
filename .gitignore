@@ -1,0 +1,15 @@
+.vs/
+.idea/
+bin/
+obj/
+artifacts/
+TestResults/
+*.user
+*.suo
+.env
+.env.*
+settings.json
+settings.json.tmp
+settings.corrupt-*.json
+*.msi
+*.wixpdb

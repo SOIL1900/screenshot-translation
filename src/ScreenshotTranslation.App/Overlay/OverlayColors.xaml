@@ -1,0 +1,48 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="Overlay.Color.Panel">#1B1B27</Color>
+    <Color x:Key="Overlay.Color.Input">#272738</Color>
+    <Color x:Key="Overlay.Color.InputPressed">#303047</Color>
+    <Color x:Key="Overlay.Color.TextPrimary">#F1F5F9</Color>
+    <Color x:Key="Overlay.Color.TextSecondary">#CBD5E1</Color>
+    <Color x:Key="Overlay.Color.Accent">#7C3AED</Color>
+    <Color x:Key="Overlay.Color.AccentHover">#6D28D9</Color>
+    <Color x:Key="Overlay.Color.PrimaryTint">#2E1065</Color>
+    <Color x:Key="Overlay.Color.Border">#4C1D95</Color>
+    <Color x:Key="Overlay.Color.ErrorText">#FCA5A5</Color>
+    <Color x:Key="Overlay.Color.SuccessText">#86EFAC</Color>
+    <Color x:Key="Overlay.Color.OnAccent">#FFFFFF</Color>
+    <Color x:Key="Overlay.Color.Mask">#8C000000</Color>
+    <Color x:Key="Overlay.Color.Handle">#FFFFFF</Color>
+    <Color x:Key="Overlay.Color.CursorRing">#B3FFFFFF</Color>
+
+    <SolidColorBrush x:Key="Overlay.Brush.Panel" Color="{StaticResource Overlay.Color.Panel}" />
+    <SolidColorBrush x:Key="Overlay.Brush.Input" Color="{StaticResource Overlay.Color.Input}" />
+    <SolidColorBrush x:Key="Overlay.Brush.InputPressed" Color="{StaticResource Overlay.Color.InputPressed}" />
+    <SolidColorBrush x:Key="Overlay.Brush.TextPrimary" Color="{StaticResource Overlay.Color.TextPrimary}" />
+    <SolidColorBrush x:Key="Overlay.Brush.TextSecondary" Color="{StaticResource Overlay.Color.TextSecondary}" />
+    <SolidColorBrush x:Key="Overlay.Brush.Accent" Color="{StaticResource Overlay.Color.Accent}" />
+    <SolidColorBrush x:Key="Overlay.Brush.AccentHover" Color="{StaticResource Overlay.Color.AccentHover}" />
+    <SolidColorBrush x:Key="Overlay.Brush.PrimaryTint" Color="{StaticResource Overlay.Color.PrimaryTint}" />
+    <SolidColorBrush x:Key="Overlay.Brush.Border" Color="{StaticResource Overlay.Color.Border}" />
+    <SolidColorBrush x:Key="Overlay.Brush.ErrorText" Color="{StaticResource Overlay.Color.ErrorText}" />
+    <SolidColorBrush x:Key="Overlay.Brush.SuccessText" Color="{StaticResource Overlay.Color.SuccessText}" />
+    <SolidColorBrush x:Key="Overlay.Brush.OnAccent" Color="{StaticResource Overlay.Color.OnAccent}" />
+    <SolidColorBrush x:Key="Overlay.Brush.Mask" Color="{StaticResource Overlay.Color.Mask}" />
+    <SolidColorBrush x:Key="Overlay.Brush.Handle" Color="{StaticResource Overlay.Color.Handle}" />
+    <SolidColorBrush x:Key="Overlay.Brush.CursorRing" Color="{StaticResource Overlay.Color.CursorRing}" />
+
+    <StaticResource x:Key="Brush.Surface" ResourceKey="Overlay.Brush.Input" />
+    <StaticResource x:Key="Brush.SurfaceHover" ResourceKey="Overlay.Brush.InputPressed" />
+    <StaticResource x:Key="Brush.SurfacePressed" ResourceKey="Overlay.Brush.InputPressed" />
+    <StaticResource x:Key="Brush.TextPrimary" ResourceKey="Overlay.Brush.TextPrimary" />
+    <StaticResource x:Key="Brush.TextSecondary" ResourceKey="Overlay.Brush.TextSecondary" />
+    <StaticResource x:Key="Brush.Primary" ResourceKey="Overlay.Brush.Accent" />
+    <StaticResource x:Key="Brush.PrimaryHover" ResourceKey="Overlay.Brush.AccentHover" />
+    <StaticResource x:Key="Brush.Focus" ResourceKey="Overlay.Brush.Accent" />
+    <StaticResource x:Key="Brush.Border" ResourceKey="Overlay.Brush.Border" />
+    <StaticResource x:Key="Brush.OnPrimary" ResourceKey="Overlay.Brush.OnAccent" />
+    <StaticResource x:Key="Brush.ErrorText" ResourceKey="Overlay.Brush.ErrorText" />
+    <StaticResource x:Key="Brush.SuccessText" ResourceKey="Overlay.Brush.SuccessText" />
+    <SolidColorBrush x:Key="Brush.PrimaryTint" Color="{StaticResource Overlay.Color.PrimaryTint}" />
+</ResourceDictionary>
