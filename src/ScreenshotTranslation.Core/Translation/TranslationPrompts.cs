@@ -7,10 +7,10 @@ public static class TranslationPrompts
         ArgumentException.ThrowIfNullOrWhiteSpace(targetLanguageCode);
 
         return $$"""
-            Translate the readable game-chat text in the attached screenshot into {{targetLanguageCode}}.
-            Detect the main source language and translate every readable chat message.
+            Translate the readable text in the attached screenshot into {{targetLanguageCode}}.
+            Detect the main source language and translate every readable message, especially chat-style text.
             Preserve usernames, message order, and line breaks.
-            Interpret abbreviations, slang, and colloquial language in the context of game chat.
+            Interpret abbreviations, slang, and colloquial language naturally, as is common in casual and game-chat contexts.
             Return no explanations, analysis, Markdown, or unrelated content.
             Return exactly one JSON object with this shape:
             {"status":"ok","sourceLanguage":"English name of detected language","sourceLanguageCode":"BCP-47 language code","translation":"translated chat"}
@@ -26,7 +26,7 @@ public static class TranslationPrompts
 
         return $$"""
             Translate the text between <message> tags into {{targetLanguageCode}}.
-            Use concise, natural language suitable for game chat.
+            Use concise, natural language, keeping a casual tone suited for chat and similar contexts.
             Return only the translation with no explanation, analysis, labels, quotation marks, or Markdown.
             <message>{{input}}</message>
             """;
