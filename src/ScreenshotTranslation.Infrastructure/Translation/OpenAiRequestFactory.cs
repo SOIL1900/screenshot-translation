@@ -18,24 +18,14 @@ public static class OpenAiRequestFactory
 
     public static JsonObject CreateScreenshotRequest(
         ModelSettings settings,
-        byte[] pngBytes,
-        string targetLanguageCode)
-    {
-        ArgumentNullException.ThrowIfNull(pngBytes);
-        return CreateScreenshotRequest(settings, (ReadOnlyMemory<byte>)pngBytes, targetLanguageCode);
-    }
-
-    public static JsonObject CreateScreenshotRequest(
-        ModelSettings settings,
-        ReadOnlyMemory<byte> pngBytes,
+        string imageDataUrl,
         string targetLanguageCode)
     {
         ArgumentNullException.ThrowIfNull(settings);
+        ArgumentException.ThrowIfNullOrWhiteSpace(imageDataUrl);
         ArgumentException.ThrowIfNullOrWhiteSpace(targetLanguageCode);
 
         var prompt = TranslationPrompts.CreateScreenshotPrompt(targetLanguageCode);
-        var normalizedPng = PngRequestImageNormalizer.Normalize(pngBytes);
-        var dataUrl = $"data:image/png;base64,{Convert.ToBase64String(normalizedPng)}";
         var content = new JsonArray
         {
             new JsonObject
@@ -48,7 +38,7 @@ public static class OpenAiRequestFactory
                 ["type"] = "image_url",
                 ["image_url"] = new JsonObject
                 {
-                    ["url"] = dataUrl
+                    ["url"] = imageDataUrl
                 }
             }
         };

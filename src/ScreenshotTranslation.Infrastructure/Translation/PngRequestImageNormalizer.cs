@@ -4,15 +4,33 @@ using System.Drawing.Imaging;
 
 namespace ScreenshotTranslation.Infrastructure.Translation;
 
-internal static class PngRequestImageNormalizer
+internal sealed class PngRequestImageNormalizer : IRequestImageNormalizer
 {
     public const int MaxLongEdgePixels = 2048;
     public const int MaxEncodedPngBytes = 8 * 1024 * 1024;
 
     private static readonly byte[] PngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
 
-    public static byte[] Normalize(ReadOnlyMemory<byte> pngBytes)
+    public Task<string> NormalizeToDataUrlAsync(
+        ReadOnlyMemory<byte> pngBytes,
+        CancellationToken cancellationToken) => Task.Run(() =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var normalizedPng = Normalize(pngBytes, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            var base64 = Convert.ToBase64String(normalizedPng);
+            cancellationToken.ThrowIfCancellationRequested();
+            return $"data:image/png;base64,{base64}";
+        }, cancellationToken);
+
+    public static byte[] Normalize(ReadOnlyMemory<byte> pngBytes) =>
+        Normalize(pngBytes, CancellationToken.None);
+
+    private static byte[] Normalize(
+        ReadOnlyMemory<byte> pngBytes,
+        CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         if (pngBytes.IsEmpty ||
             pngBytes.Length < PngSignature.Length ||
             !pngBytes.Span[..PngSignature.Length].SequenceEqual(PngSignature))
@@ -20,11 +38,14 @@ internal static class PngRequestImageNormalizer
             throw new ArgumentException("Screenshot content must be a valid PNG.", nameof(pngBytes));
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
         var input = pngBytes.ToArray();
         try
         {
+            cancellationToken.ThrowIfCancellationRequested();
             using var stream = new MemoryStream(input, writable: false);
             using var source = new Bitmap(stream);
+            cancellationToken.ThrowIfCancellationRequested();
             if (source.RawFormat.Guid != ImageFormat.Png.Guid)
             {
                 throw new ArgumentException("Screenshot content must be a valid PNG.", nameof(pngBytes));
@@ -45,9 +66,11 @@ internal static class PngRequestImageNormalizer
             var height = Math.Max(1, (int)Math.Floor(source.Height * scale));
             EnsureReduced(source.Width, source.Height, ref width, ref height);
 
-            var output = ResizeAsPng(source, width, height);
+            cancellationToken.ThrowIfCancellationRequested();
+            var output = ResizeAsPng(source, width, height, cancellationToken);
             while (output.Length > MaxEncodedPngBytes)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (width == 1 && height == 1)
                 {
                     throw new InvalidOperationException("The PNG payload could not be reduced below the request limit.");
@@ -61,9 +84,11 @@ internal static class PngRequestImageNormalizer
                 EnsureReduced(width, height, ref nextWidth, ref nextHeight);
                 width = nextWidth;
                 height = nextHeight;
-                output = ResizeAsPng(source, width, height);
+                cancellationToken.ThrowIfCancellationRequested();
+                output = ResizeAsPng(source, width, height, cancellationToken);
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
             return output;
         }
         catch (ArgumentException exception) when (exception.ParamName != nameof(pngBytes))
@@ -72,8 +97,13 @@ internal static class PngRequestImageNormalizer
         }
     }
 
-    private static byte[] ResizeAsPng(Bitmap source, int width, int height)
+    private static byte[] ResizeAsPng(
+        Bitmap source,
+        int width,
+        int height,
+        CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         using var resized = new Bitmap(width, height, PixelFormat.Format32bppArgb);
         using (var graphics = Graphics.FromImage(resized))
         {
@@ -82,6 +112,7 @@ internal static class PngRequestImageNormalizer
             graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
             graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
             graphics.SmoothingMode = SmoothingMode.HighQuality;
+            cancellationToken.ThrowIfCancellationRequested();
             graphics.DrawImage(
                 source,
                 new Rectangle(0, 0, width, height),
@@ -90,10 +121,13 @@ internal static class PngRequestImageNormalizer
                 source.Width,
                 source.Height,
                 GraphicsUnit.Pixel);
+            cancellationToken.ThrowIfCancellationRequested();
         }
 
         using var stream = new MemoryStream();
+        cancellationToken.ThrowIfCancellationRequested();
         resized.Save(stream, ImageFormat.Png);
+        cancellationToken.ThrowIfCancellationRequested();
         return stream.ToArray();
     }
 

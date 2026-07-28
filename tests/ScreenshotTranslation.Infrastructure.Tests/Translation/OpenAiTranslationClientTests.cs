@@ -175,7 +175,78 @@ public sealed class OpenAiTranslationClientTests
             () => client.TestConnectionAsync(Settings(), source.Token));
     }
 
+    [Fact]
+    public async Task Screenshot_translation_yields_while_request_image_normalization_is_held()
+    {
+        var normalizer = new BlockingRequestImageNormalizer();
+        var sendCount = 0;
+        using var httpClient = new HttpClient(new StubHttpMessageHandler((_, _) =>
+        {
+            sendCount++;
+            return Task.FromResult(JsonResponse(ScreenshotResponseJson));
+        }));
+        var client = new OpenAiTranslationClient(httpClient, normalizer);
+
+        var translation = client.TranslateScreenshotAsync(new byte[] { 1 }, "zh-CN", Settings(), CancellationToken.None);
+        await normalizer.Started.WaitAsync(TimeSpan.FromSeconds(2));
+
+        Assert.False(translation.IsCompleted);
+        Assert.Equal(0, sendCount);
+
+        normalizer.Release();
+        var result = await translation;
+
+        Assert.Equal("translated", result.Translation);
+        Assert.Equal(1, sendCount);
+    }
+
+    [Fact]
+    public async Task Caller_cancellation_stops_held_normalization_before_network()
+    {
+        var normalizer = new BlockingRequestImageNormalizer();
+        var sendCount = 0;
+        using var httpClient = new HttpClient(new StubHttpMessageHandler((_, _) =>
+        {
+            sendCount++;
+            return Task.FromResult(JsonResponse(ScreenshotResponseJson));
+        }));
+        var client = new OpenAiTranslationClient(httpClient, normalizer);
+        using var cancellation = new CancellationTokenSource();
+
+        var translation = client.TranslateScreenshotAsync(new byte[] { 1 }, "zh-CN", Settings(), cancellation.Token);
+        await normalizer.Started.WaitAsync(TimeSpan.FromSeconds(2));
+        cancellation.Cancel();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => translation);
+        Assert.True(normalizer.ReceivedToken.IsCancellationRequested);
+        Assert.Equal(0, sendCount);
+    }
+
+    [Fact]
+    public async Task Coordinator_cancel_stops_held_normalization_before_network()
+    {
+        var normalizer = new BlockingRequestImageNormalizer();
+        var sendCount = 0;
+        using var httpClient = new HttpClient(new StubHttpMessageHandler((_, _) =>
+        {
+            sendCount++;
+            return Task.FromResult(JsonResponse(ScreenshotResponseJson));
+        }));
+        var coordinator = new TranslationCoordinator(new OpenAiTranslationClient(httpClient, normalizer));
+
+        var translation = coordinator.TranslateScreenshotAsync(new byte[] { 1 }, "zh-CN", Settings(), CancellationToken.None);
+        await normalizer.Started.WaitAsync(TimeSpan.FromSeconds(2));
+        coordinator.Cancel();
+
+        Assert.Null(await translation);
+        Assert.True(normalizer.ReceivedToken.IsCancellationRequested);
+        Assert.Equal(0, sendCount);
+    }
+
     private static ModelSettings Settings() => AppSettings.CreateDefault().Model with { ApiKey = "sk-test" };
+
+    private const string ScreenshotResponseJson =
+        "{\"choices\":[{\"message\":{\"content\":\"{\\\"status\\\":\\\"ok\\\",\\\"sourceLanguage\\\":\\\"English\\\",\\\"sourceLanguageCode\\\":\\\"en\\\",\\\"translation\\\":\\\"translated\\\"}\"}}]}";
 
     private static HttpClient ClientReturning(string json) => new(
         new StubHttpMessageHandler((_, _) => Task.FromResult(JsonResponse(json))));
@@ -191,6 +262,29 @@ public sealed class OpenAiTranslationClientTests
         protected override Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request,
             CancellationToken cancellationToken) => sendAsync(request, cancellationToken);
+    }
+
+    private sealed class BlockingRequestImageNormalizer : IRequestImageNormalizer
+    {
+        private readonly TaskCompletionSource _started =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private readonly TaskCompletionSource<string> _completion =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public Task Started => _started.Task;
+
+        public CancellationToken ReceivedToken { get; private set; }
+
+        public async Task<string> NormalizeToDataUrlAsync(
+            ReadOnlyMemory<byte> pngBytes,
+            CancellationToken cancellationToken)
+        {
+            ReceivedToken = cancellationToken;
+            _started.TrySetResult();
+            return await _completion.Task.WaitAsync(cancellationToken);
+        }
+
+        public void Release() => _completion.TrySetResult("data:image/png;base64,iVBORw0KGgo=");
     }
 
     private sealed record CapturedRequest(Uri? Uri, AuthenticationHeaderValue? Authorization, string Body)

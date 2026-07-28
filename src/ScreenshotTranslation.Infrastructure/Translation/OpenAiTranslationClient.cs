@@ -7,9 +7,24 @@ using ScreenshotTranslation.Core.Translation;
 
 namespace ScreenshotTranslation.Infrastructure.Translation;
 
-public sealed class OpenAiTranslationClient(HttpClient httpClient) : ITranslationClient
+public sealed class OpenAiTranslationClient : ITranslationClient
 {
-    private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+    private readonly HttpClient _httpClient;
+    private readonly IRequestImageNormalizer _requestImageNormalizer;
+
+    public OpenAiTranslationClient(HttpClient httpClient)
+        : this(httpClient, new PngRequestImageNormalizer())
+    {
+    }
+
+    internal OpenAiTranslationClient(
+        HttpClient httpClient,
+        IRequestImageNormalizer requestImageNormalizer)
+    {
+        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _requestImageNormalizer = requestImageNormalizer ??
+            throw new ArgumentNullException(nameof(requestImageNormalizer));
+    }
 
     public async Task<ScreenshotTranslationResult> TranslateScreenshotAsync(
         ReadOnlyMemory<byte> pngBytes,
@@ -17,9 +32,13 @@ public sealed class OpenAiTranslationClient(HttpClient httpClient) : ITranslatio
         ModelSettings settings,
         CancellationToken cancellationToken)
     {
+        string imageDataUrl = await _requestImageNormalizer
+            .NormalizeToDataUrlAsync(pngBytes, cancellationToken)
+            .ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
         JsonObject request = OpenAiRequestFactory.CreateScreenshotRequest(
             settings,
-            pngBytes,
+            imageDataUrl,
             targetLanguageCode);
         string content = await SendAsync(request, settings, cancellationToken).ConfigureAwait(false);
         return OpenAiResponseParser.ParseScreenshotContent(content);

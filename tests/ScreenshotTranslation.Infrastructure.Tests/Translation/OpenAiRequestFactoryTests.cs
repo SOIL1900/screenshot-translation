@@ -12,10 +12,11 @@ public sealed class OpenAiRequestFactoryTests
     {
         var settings = AppSettings.CreateDefault().Model with { ApiKey = "sk-test" };
         var pngBytes = TestPngFactory.CreateSolid(64, 32);
+        var imageDataUrl = $"data:image/png;base64,{Convert.ToBase64String(pngBytes)}";
 
         var json = OpenAiRequestFactory.CreateScreenshotRequest(
             settings,
-            pngBytes,
+            imageDataUrl,
             "zh-CN");
 
         Assert.Equal("qwen3.7-flash", json["model"]!.GetValue<string>());
@@ -23,28 +24,12 @@ public sealed class OpenAiRequestFactoryTests
         Assert.False(json["stream"]!.GetValue<bool>());
         Assert.Equal(0.2, json["temperature"]!.GetValue<double>());
         Assert.Equal(2048, json["max_tokens"]!.GetValue<int>());
-        Assert.StartsWith(
-            "data:image/png;base64,",
+        Assert.Equal(
+            imageDataUrl,
             json["messages"]![0]!["content"]![1]!["image_url"]!["url"]!.GetValue<string>());
         Assert.Contains(
             "zh-CN",
             json["messages"]![0]!["content"]![0]!["text"]!.GetValue<string>());
-    }
-
-    [Fact]
-    public void Screenshot_request_normalizes_four_k_png_before_base64_encoding()
-    {
-        var settings = AppSettings.CreateDefault().Model with { ApiKey = "sk-test" };
-        var pngBytes = TestPngFactory.CreateSolid(3840, 2160);
-
-        var json = OpenAiRequestFactory.CreateScreenshotRequest(settings, pngBytes, "zh-CN");
-
-        var dataUrl = json["messages"]![0]!["content"]![1]!["image_url"]!["url"]!.GetValue<string>();
-        var normalized = Convert.FromBase64String(dataUrl["data:image/png;base64,".Length..]);
-        var image = TestPngFactory.Inspect(normalized);
-        Assert.Equal(2048, image.Width);
-        Assert.Equal(1152, image.Height);
-        Assert.True(normalized.Length <= PngRequestImageNormalizer.MaxEncodedPngBytes);
     }
 
     [Fact]
