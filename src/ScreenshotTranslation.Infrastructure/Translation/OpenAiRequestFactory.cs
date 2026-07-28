@@ -43,11 +43,18 @@ public static class OpenAiRequestFactory
             }
         };
 
-        return CreateRequest(settings, new JsonObject
-        {
-            ["role"] = "user",
-            ["content"] = content
-        });
+        return CreateRequest(
+            settings,
+            new JsonObject
+            {
+                ["role"] = "system",
+                ["content"] = TranslationPrompts.ScreenshotSystem
+            },
+            new JsonObject
+            {
+                ["role"] = "user",
+                ["content"] = content
+            });
     }
 
     public static JsonObject CreateReplyRequest(
@@ -57,11 +64,18 @@ public static class OpenAiRequestFactory
     {
         ArgumentNullException.ThrowIfNull(settings);
 
-        return CreateRequest(settings, new JsonObject
-        {
-            ["role"] = "user",
-            ["content"] = TranslationPrompts.CreateReplyPrompt(input, targetLanguageCode)
-        });
+        return CreateRequest(
+            settings,
+            new JsonObject
+            {
+                ["role"] = "system",
+                ["content"] = TranslationPrompts.ReplySystem
+            },
+            new JsonObject
+            {
+                ["role"] = "user",
+                ["content"] = TranslationPrompts.CreateReplyPrompt(input, targetLanguageCode)
+            });
     }
 
     public static JsonObject CreateConnectionTestRequest(ModelSettings settings)
@@ -75,12 +89,12 @@ public static class OpenAiRequestFactory
         });
     }
 
-    private static JsonObject CreateRequest(ModelSettings settings, JsonObject message)
+    private static JsonObject CreateRequest(ModelSettings settings, params JsonObject[] messages)
     {
         var request = new JsonObject
         {
             ["model"] = settings.ModelName,
-            ["messages"] = new JsonArray(message),
+            ["messages"] = new JsonArray(messages),
             ["stream"] = false,
             ["enable_thinking"] = settings.EnableThinking,
             ["temperature"] = settings.Temperature,

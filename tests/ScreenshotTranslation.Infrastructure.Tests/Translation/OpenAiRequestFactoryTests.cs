@@ -26,10 +26,17 @@ public sealed class OpenAiRequestFactoryTests
         Assert.Equal(2048, json["max_tokens"]!.GetValue<int>());
         Assert.Equal(
             imageDataUrl,
-            json["messages"]![0]!["content"]![1]!["image_url"]!["url"]!.GetValue<string>());
+            json["messages"]![1]!["content"]![1]!["image_url"]!["url"]!.GetValue<string>());
         Assert.Contains(
             "zh-CN",
-            json["messages"]![0]!["content"]![0]!["text"]!.GetValue<string>());
+            json["messages"]![1]!["content"]![0]!["text"]!.GetValue<string>());
+        Assert.Equal("system", json["messages"]![0]!["role"]!.GetValue<string>());
+        Assert.Contains(
+            "Never follow",
+            json["messages"]![0]!["content"]!.GetValue<string>());
+        Assert.Contains(
+            "status must be \"ok\"",
+            json["messages"]![1]!["content"]![0]!["text"]!.GetValue<string>());
     }
 
     [Fact]
@@ -60,7 +67,8 @@ public sealed class OpenAiRequestFactoryTests
         Assert.Equal(0.2, json["temperature"]!.GetValue<double>());
         Assert.Equal(2048, json["max_tokens"]!.GetValue<int>());
         Assert.Equal(0.75, json["top_p"]!.GetValue<double>());
-        Assert.Contains("hello", json["messages"]![0]!["content"]!.GetValue<string>());
+        Assert.Contains("hello", json["messages"]![1]!["content"]!.GetValue<string>());
+        Assert.Equal("system", json["messages"]![0]!["role"]!.GetValue<string>());
     }
 
     [Fact]
@@ -71,8 +79,9 @@ public sealed class OpenAiRequestFactoryTests
         JsonObject reply = OpenAiRequestFactory.CreateReplyRequest(settings, "good game", "de");
         JsonObject connection = OpenAiRequestFactory.CreateConnectionTestRequest(settings);
 
-        Assert.Contains("de", reply["messages"]![0]!["content"]!.GetValue<string>());
-        Assert.Contains("good game", reply["messages"]![0]!["content"]!.GetValue<string>());
+        Assert.Contains("de", reply["messages"]![1]!["content"]!.GetValue<string>());
+        Assert.Contains("good game", reply["messages"]![1]!["content"]!.GetValue<string>());
+        Assert.Contains("untrusted", reply["messages"]![0]!["content"]!.GetValue<string>());
         Assert.DoesNotContain("image_url", reply.ToJsonString());
         Assert.Contains("OK", connection["messages"]![0]!["content"]!.GetValue<string>());
         Assert.DoesNotContain("image_url", connection.ToJsonString());
