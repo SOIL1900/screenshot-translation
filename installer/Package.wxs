@@ -1,7 +1,7 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Package Name="Screenshot Translation"
            Manufacturer="Screenshot Translation contributors"
-           Version="1.0.1"
+           Version="1.0.2"
            UpgradeCode="B6D01339-D36B-4C22-B23A-07AFA70A53F4"
            Scope="perMachine">
     <MajorUpgrade DowngradeErrorMessage="A newer version of Screenshot Translation is already installed." />
