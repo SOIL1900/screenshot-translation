@@ -13,3 +13,4 @@ settings.json.tmp
 settings.corrupt-*.json
 *.msi
 *.wixpdb
+/docs/
