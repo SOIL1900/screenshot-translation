@@ -4,6 +4,22 @@
 
 Screenshot Translation 是一款面向外服游戏聊天场景的 Windows 托盘截图翻译工具。按下全局快捷键后，可以在鼠标所在显示器的冻结画面上框选文字，并将选区直接发送给 OpenAI 兼容的多模态模型。同一个结果面板还可以把快捷回复翻译回截图识别出的源语言。
 
+## 下载最新版
+
+[**下载 Screenshot Translation 1.0.8（Windows x64 MSI）**](https://github.com/SOIL1900/screenshot-translation/releases/latest/download/ScreenshotTranslation.Installer.msi)
+
+安装包适用于 Windows 10/11 x64。历史版本和发布说明可以在 [GitHub Releases](https://github.com/SOIL1900/screenshot-translation/releases) 查看。
+
+## 界面展示
+
+英文网页截图翻译：
+
+![英文网页截图翻译展示](assets/readme/translation-english.png)
+
+塞尔维亚语截图翻译与源语言识别：
+
+![塞尔维亚语截图翻译展示](assets/readme/translation-serbian.png)
+
 ## 支持环境
 
 - Windows 10 或 Windows 11，x64 架构。
@@ -14,7 +30,7 @@ Screenshot Translation 是一款面向外服游戏聊天场景的 Windows 托盘
 
 ## 安装
 
-从项目的 GitHub Release 下载 x64 MSI 并运行。MSI 会把自包含应用安装到 `Program Files\ScreenshotTranslation`，创建开始菜单快捷方式，并注册标准 Windows 卸载项；安装完成后不会自动启动，也不会安装自动更新程序。
+点击上方的 MSI 下载链接并运行。MSI 会把自包含应用安装到 `Program Files\ScreenshotTranslation`，创建开始菜单快捷方式，并注册标准 Windows 卸载项；安装完成后不会自动启动，也不会安装自动更新程序。
 
 当前发布版本尚未进行代码签名，Windows SmartScreen 可能显示“无法识别的应用”警告。请先确认 MSI 来自本项目的 Release 页面，再选择 **更多信息** 和 **仍要运行**。以后可以加入签名流程；绕过该提示不需要输入 API Key 或任何其他密钥。
 

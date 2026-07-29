@@ -4,6 +4,22 @@
 
 Screenshot Translation is a Windows tray utility for translating game chat directly from a screen selection. Press a global shortcut, select text on a frozen image of the display under the cursor, and send that selection to an OpenAI-compatible multimodal model. The same overlay can translate a short reply back into the detected source language.
 
+## Download the latest release
+
+[**Download Screenshot Translation 1.0.8 (Windows x64 MSI)**](https://github.com/SOIL1900/screenshot-translation/releases/latest/download/ScreenshotTranslation.Installer.msi)
+
+The installer supports Windows 10/11 x64. Previous versions and release notes are available on [GitHub Releases](https://github.com/SOIL1900/screenshot-translation/releases).
+
+## Screenshots
+
+Translating an English web page:
+
+![English web-page translation](assets/readme/translation-english.png)
+
+Translating Serbian text with automatic source-language detection:
+
+![Serbian screenshot translation](assets/readme/translation-serbian.png)
+
 ## Supported environment
 
 - Windows 10 or Windows 11 on x64 hardware.
@@ -14,7 +30,7 @@ Screenshot Translation is a Windows tray utility for translating game chat direc
 
 ## Installation
 
-Download the x64 MSI from a GitHub Release and run it. The MSI installs the self-contained application under `Program Files\ScreenshotTranslation`, adds a Start Menu shortcut, and registers a standard Windows uninstall entry. It does not launch the application automatically and does not install an automatic updater.
+Use the MSI download link above and run the installer. The MSI installs the self-contained application under `Program Files\ScreenshotTranslation`, adds a Start Menu shortcut, and registers a standard Windows uninstall entry. It does not launch the application automatically and does not install an automatic updater.
 
 Release builds are currently unsigned. Windows SmartScreen may show an "unrecognized app" warning. Check that the MSI came from this project's Release page before choosing **More info** and **Run anyway**. Signing can be added in a future release; bypassing this warning does not require an API key or any other secret.
 
