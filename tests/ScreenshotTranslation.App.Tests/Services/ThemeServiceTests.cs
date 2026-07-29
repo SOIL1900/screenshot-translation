@@ -98,6 +98,14 @@ public sealed class ThemeServiceTests
             panel.Arrange(new System.Windows.Rect(0, 0, 920, panel.DesiredSize.Height));
             panel.UpdateLayout();
 
+            var compactOverlayButtonStyle = Assert.IsType<Style>(
+                panel.FindResource("OverlayCompactButtonStyle"));
+            Assert.Null(compactOverlayButtonStyle.BasedOn);
+            Assert.DoesNotContain(
+                compactOverlayButtonStyle.Triggers.OfType<Trigger>(),
+                trigger => trigger.Property == UIElement.IsMouseOverProperty ||
+                           trigger.Property == WpfButton.IsPressedProperty);
+
             var replyInputTop = panel.ReplyInput.TranslatePoint(new System.Windows.Point(), panel).Y;
             var replyOutputTop = panel.ReplyTranslationOutput.TranslatePoint(new System.Windows.Point(), panel).Y;
             Assert.Equal(replyInputTop, replyOutputTop, precision: 3);
@@ -138,6 +146,13 @@ public sealed class ThemeServiceTests
             Assert.Equal(
                 System.Windows.Media.Color.FromRgb(0xA9, 0xA6, 0xB4),
                 retryButtonForeground.Color);
+            panel.TranslateReplyButton.IsEnabled = true;
+            panel.UpdateLayout();
+            var enabledTranslateBackground = Assert.IsType<WpfSolidColorBrush>(
+                panel.TranslateReplyButton.Background);
+            Assert.Equal(
+                System.Windows.Media.Color.FromRgb(0x24, 0x24, 0x2F),
+                enabledTranslateBackground.Color);
             panel.TranslateReplyButton.IsEnabled = false;
             panel.UpdateLayout();
             var disabledTranslateBackground = Assert.IsType<WpfSolidColorBrush>(
