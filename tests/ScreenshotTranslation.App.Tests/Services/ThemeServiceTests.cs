@@ -94,6 +94,7 @@ public sealed class ThemeServiceTests
                 Width = 920,
                 DataContext = new PanelPreviewData(),
             };
+            panel.ScreenshotTranslationOutput.Text = PanelPreviewData.LongScreenshotTranslation;
             panel.Measure(new System.Windows.Size(920, OverlayViewModel.PanelMaximumHeight));
             panel.Arrange(new System.Windows.Rect(0, 0, 920, panel.DesiredSize.Height));
             panel.UpdateLayout();
@@ -216,12 +217,14 @@ public sealed class ThemeServiceTests
 
     private sealed class PanelPreviewData
     {
+        public static string LongScreenshotTranslation { get; } = string.Concat(
+            Enumerable.Repeat("这是一段用于验证翻译内容框能够根据文字长度自动换行并增加高度的中文译文。", 8));
+
         public IReadOnlyList<LanguageOption> Languages { get; } = LanguageCatalog.All;
 
         public string ScreenshotTargetLanguage { get; } = "zh-CN";
 
-        public string ScreenshotTranslation { get; } = string.Concat(
-            Enumerable.Repeat("这是一段用于验证翻译内容框能够根据文字长度自动换行并增加高度的中文译文。", 8));
+        public string ScreenshotTranslation { get; } = LongScreenshotTranslation;
 
         public bool IsScreenshotLoadingVisible { get; } = false;
 
