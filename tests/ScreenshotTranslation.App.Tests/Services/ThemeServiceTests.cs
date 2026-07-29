@@ -74,6 +74,12 @@ public sealed class ThemeServiceTests
 
             var primaryButtonStyle = Assert.IsType<Style>(
                 application.FindResource("PrimaryButtonStyle"));
+            var buttonStyle = Assert.IsType<Style>(
+                application.FindResource(typeof(WpfButton)));
+            Assert.DoesNotContain(
+                buttonStyle.Triggers.OfType<Trigger>(),
+                trigger => trigger.Property == UIElement.IsMouseOverProperty ||
+                           trigger.Property == WpfButton.IsPressedProperty);
             var primaryButton = new WpfButton { Style = primaryButtonStyle };
             var primaryForeground = Assert.IsType<WpfSolidColorBrush>(primaryButton.Foreground);
             Assert.Equal(System.Windows.Media.Colors.White, primaryForeground.Color);
@@ -132,6 +138,13 @@ public sealed class ThemeServiceTests
             Assert.Equal(
                 System.Windows.Media.Color.FromRgb(0xA9, 0xA6, 0xB4),
                 retryButtonForeground.Color);
+            panel.TranslateReplyButton.IsEnabled = false;
+            panel.UpdateLayout();
+            var disabledTranslateBackground = Assert.IsType<WpfSolidColorBrush>(
+                panel.TranslateReplyButton.Background);
+            Assert.Equal(
+                System.Windows.Media.Color.FromRgb(0x22, 0x22, 0x2C),
+                disabledTranslateBackground.Color);
         });
     }
 

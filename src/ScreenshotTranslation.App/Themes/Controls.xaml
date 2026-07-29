@@ -349,12 +349,20 @@
             </Setter.Value>
         </Setter>
         <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsEnabled" Value="True" />
+                    <Condition Property="IsMouseOver" Value="True" />
+                </MultiTrigger.Conditions>
                 <Setter Property="Background" Value="{DynamicResource Brush.SurfaceHover}" />
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsEnabled" Value="True" />
+                    <Condition Property="IsPressed" Value="True" />
+                </MultiTrigger.Conditions>
                 <Setter Property="Background" Value="{DynamicResource Brush.SurfacePressed}" />
-            </Trigger>
+            </MultiTrigger>
             <Trigger Property="IsKeyboardFocused" Value="True">
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Focus}" />
             </Trigger>
@@ -371,13 +379,21 @@
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Primary}" />
         <Setter Property="Foreground" Value="#FFFFFF" />
         <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsEnabled" Value="True" />
+                    <Condition Property="IsMouseOver" Value="True" />
+                </MultiTrigger.Conditions>
                 <Setter Property="Background" Value="{DynamicResource Brush.PrimaryHover}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.PrimaryHover}" />
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsEnabled" Value="True" />
+                    <Condition Property="IsPressed" Value="True" />
+                </MultiTrigger.Conditions>
                 <Setter Property="Background" Value="{DynamicResource Brush.PrimaryHover}" />
-            </Trigger>
+            </MultiTrigger>
             <Trigger Property="IsKeyboardFocused" Value="True">
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Focus}" />
             </Trigger>
