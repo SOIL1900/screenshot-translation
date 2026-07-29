@@ -106,11 +106,12 @@
                BasedOn="{StaticResource {x:Type TextBox}}">
             <Setter Property="MinHeight" Value="32" />
             <Setter Property="Height" Value="32" />
-            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="Padding" Value="10,2" />
             <Setter Property="Background" Value="{DynamicResource Overlay.Brush.Input}" />
             <Setter Property="Foreground" Value="{DynamicResource Overlay.Brush.TextPrimary}" />
             <Setter Property="CaretBrush" Value="{DynamicResource Overlay.Brush.TextPrimary}" />
             <Setter Property="BorderBrush" Value="{DynamicResource Overlay.Brush.Border}" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
 
         <Style x:Key="OverlayResultTextBoxStyle"

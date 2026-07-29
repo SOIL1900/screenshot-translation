@@ -8,6 +8,7 @@ using WpfComboBox = System.Windows.Controls.ComboBox;
 using WpfScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility;
 using WpfTextBlock = System.Windows.Controls.TextBlock;
 using WpfTextSearch = System.Windows.Controls.TextSearch;
+using WpfToggleButton = System.Windows.Controls.Primitives.ToggleButton;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
 namespace ScreenshotTranslation.App.Tests.Services;
@@ -96,6 +97,8 @@ public sealed class ThemeServiceTests
             Assert.Equal(replyInputTop, replyOutputTop, precision: 3);
             Assert.Equal(32, panel.ReplyInput.ActualHeight, precision: 3);
             Assert.Equal(32, panel.ReplyTranslationOutput.ActualHeight, precision: 3);
+            Assert.Equal(new Thickness(10, 2, 10, 2), panel.ReplyInput.Padding);
+            Assert.Equal(VerticalAlignment.Center, panel.ReplyInput.VerticalContentAlignment);
             Assert.True(panel.ScreenshotTranslationOutput.ActualHeight > 32);
             Assert.True(panel.ActualHeight > OverlayViewModel.PanelMinimumHeight);
             Assert.Equal(
@@ -109,6 +112,15 @@ public sealed class ThemeServiceTests
             var languageItemForeground = Assert.IsType<WpfSolidColorBrush>(
                 languageItemText.Foreground);
             Assert.Equal(System.Windows.Media.Colors.White, languageItemForeground.Color);
+            panel.ScreenshotTargetLanguageInput.ApplyTemplate();
+            var dropDownToggle = Assert.IsType<WpfToggleButton>(
+                panel.ScreenshotTargetLanguageInput.Template.FindName(
+                    "DropDownToggle",
+                    panel.ScreenshotTargetLanguageInput));
+            Assert.DoesNotContain(
+                dropDownToggle.Template.Triggers.OfType<Trigger>(),
+                trigger => trigger.Property == UIElement.IsMouseOverProperty ||
+                           trigger.Property == WpfToggleButton.IsPressedProperty);
             var copyButtonText = Assert.IsType<WpfTextBlock>(panel.CopyScreenshotButton.Content);
             var copyButtonForeground = Assert.IsType<WpfSolidColorBrush>(copyButtonText.Foreground);
             Assert.Equal(System.Windows.Media.Colors.White, copyButtonForeground.Color);
@@ -187,7 +199,7 @@ public sealed class ThemeServiceTests
 
         public string StatusMessage { get; } = "截图翻译完成";
 
-        public string ReplyInput { get; set; } = string.Empty;
+        public string ReplyInput { get; set; } = "你好";
 
         public string ReplyTargetLanguage { get; set; } = "en";
 
