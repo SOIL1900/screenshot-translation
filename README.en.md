@@ -102,9 +102,8 @@ The first command writes the portable release payload to `artifacts\publish`. Th
 
 Issues and focused pull requests are welcome. Please:
 
-1. Read the [approved design](docs/superpowers/specs/2026-07-27-screenshot-translation-design.md) and [implementation plan](docs/superpowers/plans/2026-07-27-screenshot-translation.md).
-2. Keep Core logic independent of WPF and Win32 adapters, and keep network/screen behavior injectable for tests.
-3. Add or update focused automated coverage for changed behavior, then run the risk-proportionate build and test commands instead of repeating full verification without a reason.
-4. Never commit API keys, populated settings files, screenshots, translations, or other private user data.
+1. Keep Core logic independent of WPF and Win32 adapters, and keep network/screen behavior injectable for tests.
+2. Add or update focused automated coverage for changed behavior, then run the risk-proportionate build and test commands instead of repeating full verification without a reason.
+3. Never commit API keys, populated settings files, screenshots, translations, or other private user data.
 
 This project is available under the [MIT License](LICENSE).
