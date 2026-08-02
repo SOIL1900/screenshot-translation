@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <InternalsVisibleTo Include="ScreenshotTranslation.App.Tests" />
@@ -15,7 +15,7 @@
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
     <AssemblyName>ScreenshotTranslation</AssemblyName>
     <RootNamespace>ScreenshotTranslation.App</RootNamespace>
-    <Version>1.0.9</Version>
+    <Version>1.0.10</Version>
   </PropertyGroup>
 
   <ItemGroup>
