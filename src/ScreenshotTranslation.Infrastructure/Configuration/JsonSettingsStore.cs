@@ -1,6 +1,7 @@
 using System.Text.Json;
 using ScreenshotTranslation.Core.Abstractions;
 using ScreenshotTranslation.Core.Configuration;
+using ScreenshotTranslation.Core.Translation;
 
 namespace ScreenshotTranslation.Infrastructure.Configuration;
 
@@ -53,6 +54,7 @@ public sealed class JsonSettingsStore : ISettingsStore
                 throw new JsonException("Settings JSON cannot be null.");
             }
 
+            settings = NormalizeRemovedTargetLanguage(settings);
             if (SettingsValidator.ValidatePersisted(settings).Count > 0)
             {
                 throw new JsonException("Settings JSON violates persisted settings invariants.");
@@ -112,5 +114,22 @@ public sealed class JsonSettingsStore : ISettingsStore
         var timestamp = _timeProvider.GetUtcNow().UtcDateTime.ToString("yyyyMMdd-HHmmssfff");
         var backupPath = Path.Combine(_baseDirectory, $"settings.corrupt-{timestamp}.json");
         File.Move(SettingsPath, backupPath);
+    }
+
+    private static AppSettings NormalizeRemovedTargetLanguage(AppSettings settings)
+    {
+        if (settings.General is null ||
+            LanguageCatalog.IsSupported(settings.General.DefaultTargetLanguage))
+        {
+            return settings;
+        }
+
+        return settings with
+        {
+            General = settings.General with
+            {
+                DefaultTargetLanguage = AppSettings.CreateDefault().General.DefaultTargetLanguage
+            }
+        };
     }
 }

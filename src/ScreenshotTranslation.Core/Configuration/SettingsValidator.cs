@@ -91,11 +91,7 @@ public static class SettingsValidator
             }
         }
 
-        if (!LanguageCatalog.All.Any(
-                language => string.Equals(
-                    language.Code,
-                    general.DefaultTargetLanguage,
-                    StringComparison.Ordinal)))
+        if (!LanguageCatalog.IsSupported(general.DefaultTargetLanguage))
         {
             issues.Add(new ValidationIssue(
                 "General.DefaultTargetLanguage",

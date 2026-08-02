@@ -84,6 +84,27 @@ public sealed class JsonSettingsStoreTests
         Assert.Empty(Directory.GetFiles(directory.Path, "settings.corrupt-*.json"));
     }
 
+    [Fact]
+    public async Task Load_replaces_a_removed_default_language_without_losing_model_settings()
+    {
+        using var directory = new TemporaryDirectory();
+        var store = new JsonSettingsStore(directory.Path, TimeProvider.System);
+        var saved = AppSettings.CreateDefault() with
+        {
+            General = AppSettings.CreateDefault().General with { DefaultTargetLanguage = "ar" },
+            Model = AppSettings.CreateDefault().Model with { ApiKey = "sk-keep-this-value" }
+        };
+        await File.WriteAllTextAsync(
+            store.SettingsPath,
+            JsonSerializer.Serialize(saved, JsonOptions));
+
+        AppSettings actual = await store.LoadAsync(CancellationToken.None);
+
+        Assert.Equal("zh-CN", actual.General.DefaultTargetLanguage);
+        Assert.Equal("sk-keep-this-value", actual.Model.ApiKey);
+        Assert.Empty(Directory.GetFiles(directory.Path, "settings.corrupt-*.json"));
+    }
+
     public static IEnumerable<object[]> StructurallyInvalidSettingsJson()
     {
         yield return ["{}"];

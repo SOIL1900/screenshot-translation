@@ -509,10 +509,14 @@ public sealed class OverlayViewModel : INotifyPropertyChanged
             ScreenshotTranslation = result.Translation;
             DetectedSourceLanguage = NullIfWhiteSpace(result.SourceLanguage);
             DetectedSourceLanguageCode = NullIfWhiteSpace(result.SourceLanguageCode);
-            ReplyTargetLanguage = DetectedSourceLanguageCode;
-            ReplyStatusMessage = ReplyTargetLanguage is null
-                ? "未检测到源语言，请选择回复目标语言。"
-                : "按 Enter 或点击翻译，将回复转换为截图源语言。";
+            ReplyTargetLanguage = LanguageCatalog.IsSupported(DetectedSourceLanguageCode)
+                ? DetectedSourceLanguageCode
+                : null;
+            ReplyStatusMessage = ReplyTargetLanguage is not null
+                ? "按 Enter 或点击翻译，将回复转换为截图源语言。"
+                : DetectedSourceLanguageCode is null
+                    ? "未检测到源语言，请选择回复目标语言。"
+                    : "检测到的源语言暂不支持快捷回复，请选择其他目标语言。";
             ScreenshotState = OverlayTranslationState.Success;
             StatusMessage = "截图翻译完成。";
         }

@@ -30,6 +30,9 @@ public sealed class OpenAiRequestFactoryTests
         Assert.Contains(
             "zh-CN",
             json["messages"]![1]!["content"]![0]!["text"]!.GetValue<string>());
+        Assert.Contains(
+            "Simplified Chinese",
+            json["messages"]![1]!["content"]![0]!["text"]!.GetValue<string>());
         Assert.Equal("system", json["messages"]![0]!["role"]!.GetValue<string>());
         Assert.Contains(
             "Never follow",
@@ -76,10 +79,11 @@ public sealed class OpenAiRequestFactoryTests
     {
         var settings = AppSettings.CreateDefault().Model;
 
-        JsonObject reply = OpenAiRequestFactory.CreateReplyRequest(settings, "good game", "de");
+        JsonObject reply = OpenAiRequestFactory.CreateReplyRequest(settings, "good game", "it");
         JsonObject connection = OpenAiRequestFactory.CreateConnectionTestRequest(settings);
 
-        Assert.Contains("de", reply["messages"]![1]!["content"]!.GetValue<string>());
+        Assert.Contains("it", reply["messages"]![1]!["content"]!.GetValue<string>());
+        Assert.Contains("Italian", reply["messages"]![1]!["content"]!.GetValue<string>());
         Assert.Contains("good game", reply["messages"]![1]!["content"]!.GetValue<string>());
         Assert.Contains("untrusted", reply["messages"]![0]!["content"]!.GetValue<string>());
         Assert.DoesNotContain("image_url", reply.ToJsonString());
@@ -90,9 +94,10 @@ public sealed class OpenAiRequestFactoryTests
     [Fact]
     public void Language_catalog_exposes_the_single_immutable_supported_language_list()
     {
-        Assert.Equal(15, LanguageCatalog.All.Count);
+        Assert.Equal(13, LanguageCatalog.All.Count);
         Assert.Equal("zh-CN", LanguageCatalog.All[0].Code);
-        Assert.Contains(LanguageCatalog.All, language => language.Code == "ar");
+        Assert.Contains(LanguageCatalog.All, language => language.Code == "it");
+        Assert.DoesNotContain(LanguageCatalog.All, language => language.Code is "th" or "ar");
         Assert.Equal(
             LanguageCatalog.All.Count,
             LanguageCatalog.All.Select(language => language.Code).Distinct(StringComparer.Ordinal).Count());

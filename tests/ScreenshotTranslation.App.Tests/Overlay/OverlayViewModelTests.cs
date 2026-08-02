@@ -210,6 +210,20 @@ public sealed class OverlayViewModelTests
     }
 
     [Fact]
+    public async Task Removed_detected_source_language_requires_a_supported_reply_target()
+    {
+        var fixture = OverlayViewModelFixture.Create(
+            screenshotResult: ScreenshotResult("Arabic", "ar", "译文"));
+
+        await fixture.SelectValidAreaAsync();
+
+        Assert.Equal("ar", fixture.ViewModel.DetectedSourceLanguageCode);
+        Assert.Null(fixture.ViewModel.ReplyTargetLanguage);
+        Assert.False(fixture.ViewModel.CanTranslateReply);
+        Assert.Contains("暂不支持", fixture.ViewModel.ReplyStatusMessage);
+    }
+
+    [Fact]
     public async Task Editing_reply_while_translation_is_in_flight_suppresses_stale_result()
     {
         var fixture = OverlayViewModelFixture.Create(holdReplyTranslations: true);
