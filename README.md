@@ -6,7 +6,7 @@ Screenshot Translation 是一款面向外服游戏聊天场景的 Windows 托盘
 
 ## 下载最新版
 
-[**下载 Screenshot Translation 1.0.9（Windows x64 MSI）**](https://github.com/SOIL1900/screenshot-translation/releases/latest/download/ScreenshotTranslation.Installer.msi)
+[**下载 Screenshot Translation 1.0.11（Windows x64 MSI）**](https://github.com/SOIL1900/screenshot-translation/releases/latest/download/ScreenshotTranslation.Installer.msi)
 
 安装包适用于 Windows 10/11 x64。历史版本和发布说明可以在 [GitHub Releases](https://github.com/SOIL1900/screenshot-translation/releases) 查看。
 

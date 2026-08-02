@@ -6,7 +6,7 @@ Screenshot Translation is a Windows tray utility for translating game chat direc
 
 ## Download the latest release
 
-[**Download Screenshot Translation 1.0.9 (Windows x64 MSI)**](https://github.com/SOIL1900/screenshot-translation/releases/latest/download/ScreenshotTranslation.Installer.msi)
+[**Download Screenshot Translation 1.0.11 (Windows x64 MSI)**](https://github.com/SOIL1900/screenshot-translation/releases/latest/download/ScreenshotTranslation.Installer.msi)
 
 The installer supports Windows 10/11 x64. Previous versions and release notes are available on [GitHub Releases](https://github.com/SOIL1900/screenshot-translation/releases).
 
