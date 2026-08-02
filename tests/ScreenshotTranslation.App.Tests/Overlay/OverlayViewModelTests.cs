@@ -38,17 +38,30 @@ public sealed class OverlayViewModelTests
     }
 
     [Fact]
-    public async Task Small_selection_closes_without_translation()
+    public async Task Selection_smaller_than_minimum_closes_without_translation()
     {
         var fixture = OverlayViewModelFixture.Create();
 
         fixture.ViewModel.BeginSelection(new PixelPoint(10, 10));
-        fixture.ViewModel.UpdatePointer(new PixelPoint(20, 20));
+        fixture.ViewModel.UpdatePointer(new PixelPoint(17, 17));
         await fixture.ViewModel.CompletePointerActionAsync();
 
         Assert.Null(fixture.ViewModel.Selection);
         Assert.Equal(1, fixture.CloseRequestCount);
         Assert.Equal(0, fixture.TranslationCoordinator.ScreenshotCallCount);
+    }
+
+    [Fact]
+    public async Task Selection_at_eight_pixel_minimum_starts_translation()
+    {
+        var fixture = OverlayViewModelFixture.Create();
+
+        fixture.ViewModel.BeginSelection(new PixelPoint(10, 10));
+        fixture.ViewModel.UpdatePointer(new PixelPoint(18, 18));
+        await fixture.ViewModel.CompletePointerActionAsync();
+
+        Assert.Equal(new PixelRect(10, 10, 8, 8), fixture.ViewModel.Selection);
+        Assert.Equal(1, fixture.TranslationCoordinator.ScreenshotCallCount);
     }
 
     [Fact]

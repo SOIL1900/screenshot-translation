@@ -27,7 +27,7 @@ public enum OverlayTranslationState
 
 public sealed class OverlayViewModel : INotifyPropertyChanged
 {
-    public const int MinimumSelectionSize = 24;
+    public const int MinimumSelectionSize = 8;
     public const int PanelMinimumWidth = 760;
     public const int PanelMaximumWidth = 1080;
     public const int PanelMinimumHeight = 166;
