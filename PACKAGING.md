@@ -65,4 +65,4 @@ artifacts\ScreenshotTranslation-1.0.10-x64.msi
 artifacts\publish\ScreenshotTranslation.exe
 ```
 
-该脚本只负责本地迭代打包，不执行 Git 提交、标签创建、推送或 GitHub Release 上传。
+该脚本只负责本地迭代打包，不执行 Git 提交、标签创建、推送或 GitHub Release 上传。打包完成后，可以按照 [`RELEASING.md`](RELEASING.md) 使用 `release.ps1` 一键发布到 GitHub Releases。
