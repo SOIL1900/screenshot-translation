@@ -96,6 +96,7 @@ public sealed class OpenAiRequestFactoryTests
     {
         Assert.Equal(13, LanguageCatalog.All.Count);
         Assert.Equal("zh-CN", LanguageCatalog.All[0].Code);
+        Assert.Equal("ru", LanguageCatalog.All[2].Code);
         Assert.Contains(LanguageCatalog.All, language => language.Code == "it");
         Assert.DoesNotContain(LanguageCatalog.All, language => language.Code is "th" or "ar");
         Assert.Equal(

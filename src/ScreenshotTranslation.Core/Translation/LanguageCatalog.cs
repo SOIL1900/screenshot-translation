@@ -8,9 +8,9 @@ public static class LanguageCatalog
     [
         new("zh-CN", "简体中文", "Simplified Chinese"),
         new("en", "English", "English"),
+        new("ru", "Русский", "Russian"),
         new("ja", "日本語", "Japanese"),
         new("ko", "한국어", "Korean"),
-        new("ru", "Русский", "Russian"),
         new("fr", "Français", "French"),
         new("de", "Deutsch", "German"),
         new("es", "Español", "Spanish"),
