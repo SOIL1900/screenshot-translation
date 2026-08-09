@@ -16,9 +16,9 @@ Translating an English web page:
 
 ![English web-page translation](assets/readme/translation-english.png)
 
-Translating Serbian text with automatic source-language detection:
+Translating Russian text with automatic source-language detection:
 
-![Serbian screenshot translation](assets/readme/translation-serbian.png)
+![Russian screenshot translation](assets/readme/translation-russian.png)
 
 ## Supported environment
 

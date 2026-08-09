@@ -16,9 +16,9 @@ Screenshot Translation 是一款面向外服游戏聊天场景的 Windows 托盘
 
 ![英文网页截图翻译展示](assets/readme/translation-english.png)
 
-塞尔维亚语截图翻译与源语言识别：
+俄语截图翻译与源语言识别：
 
-![塞尔维亚语截图翻译展示](assets/readme/translation-serbian.png)
+![俄语截图翻译展示](assets/readme/translation-russian.png)
 
 ## 支持环境
 
