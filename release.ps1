@@ -13,6 +13,8 @@ $InstallerSourcePath = Join-Path $RepoRoot "installer\Package.wxs"
 $ReadmePath = Join-Path $RepoRoot "README.md"
 $EnglishReadmePath = Join-Path $RepoRoot "README.en.md"
 $ReleaseAssetName = "ScreenshotTranslation.Installer.msi"
+$OfficialRepository = "SOIL1900/screenshot-translation"
+$OfficialPublisher = "SOIL1900"
 
 function Write-Utf8NoBom {
     param(
@@ -396,6 +398,17 @@ if ($CurrentBranch -ne $DefaultBranch) {
     throw "Releases must be created from the default branch $DefaultBranch, not $CurrentBranch."
 }
 
+$AuthenticatedUser = Get-RequiredJson `
+    -GhPath $GhPath `
+    -CommandArguments @("api", "user")
+$PublisherLogin = [string]$AuthenticatedUser.login
+$IsOfficialPublisher = `
+    $Repository.Equals($OfficialRepository, [StringComparison]::OrdinalIgnoreCase) -and
+    $PublisherLogin.Equals($OfficialPublisher, [StringComparison]::OrdinalIgnoreCase)
+if (-not $DryRun -and -not $IsOfficialPublisher) {
+    throw "Official Releases can only be published to $OfficialRepository by GitHub account $OfficialPublisher. Current repository: $Repository. Current account: $PublisherLogin."
+}
+
 $ExistingRelease = Get-OptionalRelease `
     -GhPath $GhPath `
     -Repository $Repository `
@@ -414,6 +427,8 @@ $EnglishReadmeNeedsUpdate = `
     $UpdatedEnglishReadmeContent -ne [System.IO.File]::ReadAllText($EnglishReadmePath)
 
 Write-Host "Repository: $Repository" -ForegroundColor DarkGray
+Write-Host "GitHub account: $PublisherLogin" -ForegroundColor DarkGray
+Write-Host "Official publisher authorized: $IsOfficialPublisher" -ForegroundColor DarkGray
 Write-Host "Branch: $CurrentBranch" -ForegroundColor DarkGray
 Write-Host "Version: $Version" -ForegroundColor Cyan
 Write-Host "Tag: $Tag" -ForegroundColor Cyan
@@ -431,6 +446,14 @@ if ($DryRun) {
     Write-Host "README update required: $($ReadmeNeedsUpdate -or $EnglishReadmeNeedsUpdate)" -ForegroundColor Green
     Write-Host "Existing draft will be resumed: $($null -ne $ExistingRelease)" -ForegroundColor Green
     exit 0
+}
+
+$ExpectedConfirmation = "RELEASE-$Tag"
+Write-Host ""
+Write-Host "This will push $CurrentBranch and publish $Tag to $Repository." -ForegroundColor Yellow
+$Confirmation = Read-Host "Type $ExpectedConfirmation to continue"
+if (-not $Confirmation.Equals($ExpectedConfirmation, [StringComparison]::Ordinal)) {
+    throw "Release confirmation did not match. Nothing was published."
 }
 
 if ($ReadmeNeedsUpdate) {

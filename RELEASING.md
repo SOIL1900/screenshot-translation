@@ -25,18 +25,27 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\release.ps1"
 
 `-DryRun` 只检查版本、安装包、Git 状态、GitHub 登录和远端 Release 状态，不修改文件、不提交、不推送，也不创建 Release。
 
+正式发布只允许同时满足以下两个条件：
+
+- 目标仓库是 `SOIL1900/screenshot-translation`。
+- GitHub CLI 当前登录账号是 `SOIL1900`。
+
+其他账号和 Fork 仍然可以执行 `-DryRun`，但正式执行会在修改文件、提交、推送和创建 Release 之前停止。
+
 正式执行时，脚本会自动：
 
 1. 从应用项目读取当前版本，并确认 MSI 版本一致。
 2. 查找 `artifacts\ScreenshotTranslation-版本号-x64.msi`。
 3. 检查安装包是否晚于当前源码，阻止发布旧安装包。
 4. 确认当前分支是 GitHub 默认分支，且没有无关的未提交修改。
-5. 将中英文 README 的最新版显示同步为当前版本。
-6. 提交允许的版本文件和 README，并推送当前分支。
-7. 创建 GitHub Release 草稿并生成发布说明。
-8. 使用稳定文件名 `ScreenshotTranslation.Installer.msi` 上传安装包。
-9. 核对远端文件大小和 GitHub SHA-256 摘要。
-10. 校验成功后才正式发布，并标记为 Latest。
+5. 校验目标仓库和 GitHub 登录账号均属于官方发布者。
+6. 要求手动输入 `RELEASE-v版本号` 进行最终确认。
+7. 将中英文 README 的最新版显示同步为当前版本。
+8. 提交允许的版本文件和 README，并推送当前分支。
+9. 创建 GitHub Release 草稿并生成发布说明。
+10. 使用稳定文件名 `ScreenshotTranslation.Installer.msi` 上传安装包。
+11. 核对远端文件大小和 GitHub SHA-256 摘要。
+12. 校验成功后才正式发布，并标记为 Latest。
 
 如果上传中断，Release 会保留为草稿。重新执行同一条发布命令时，脚本会继续该草稿；已经完整上传且摘要一致的安装包不会重复上传。
 
@@ -53,6 +62,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\release.ps1" -NotesFi
 ## 安全限制
 
 - 已正式发布的同版本 Release 不会重复创建。
+- 只有 GitHub 账号 `SOIL1900` 能向官方仓库正式发布，其他账号只能执行 `-DryRun`。
+- 正式发布前必须输入与当前版本完全一致的确认文本。
 - 分支落后于远端时停止，不自动合并或覆盖远端提交。
 - 除版本文件和中英文 README 外存在未提交修改时停止。
 - 安装包过旧、文件大小不一致或 SHA-256 不一致时不会发布草稿。
