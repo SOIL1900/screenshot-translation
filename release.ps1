@@ -122,13 +122,36 @@ function Get-OptionalRelease {
         [string]$Tag
     )
 
+    # The REST release-by-tag endpoint does not return unpublished drafts.
+    # gh release view resolves both drafts and published Releases by tag.
     $Result = Invoke-External `
         -FilePath $GhPath `
-        -CommandArguments @("api", "repos/$Repository/releases/tags/$Tag") `
+        -CommandArguments @(
+            "release",
+            "view",
+            $Tag,
+            "--repo",
+            $Repository,
+            "--json",
+            "databaseId,tagName,isDraft,isPrerelease,url,targetCommitish") `
         -AllowFailure
 
     if ($Result.ExitCode -eq 0) {
-        return $Result.OutputText | ConvertFrom-Json
+        try {
+            $ReleaseView = $Result.OutputText | ConvertFrom-Json
+        }
+        catch {
+            throw "GitHub CLI returned invalid Release JSON.`n$($Result.OutputText)"
+        }
+
+        return [pscustomobject]@{
+            id = [long]$ReleaseView.databaseId
+            tag_name = [string]$ReleaseView.tagName
+            draft = [bool]$ReleaseView.isDraft
+            prerelease = [bool]$ReleaseView.isPrerelease
+            html_url = [string]$ReleaseView.url
+            target_commitish = [string]$ReleaseView.targetCommitish
+        }
     }
 
     if ($Result.OutputText -match "(?i)not found|HTTP 404") {
